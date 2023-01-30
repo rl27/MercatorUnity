@@ -93,7 +93,8 @@ public class Hyper
     // Euclidean radius of circumscribed circle, given sides per polygon and polygons per vertex.
     public static double circleRadius(int n, int k)
     {
-        return Mathd.Sqrt((Mathd.Tan(Mathd.PI / 2 - Mathd.PI / k) - Mathd.Tan(Mathd.PI / n)) / (Mathd.Tan(Mathd.PI / 2 - Mathd.PI / k) + Mathd.Tan(Mathd.PI / n)));
+        // return Mathd.Sqrt((Mathd.Tan(Mathd.PI / 2 - Mathd.PI / k) - Mathd.Tan(Mathd.PI / n)) / (Mathd.Tan(Mathd.PI / 2 - Mathd.PI / k) + Mathd.Tan(Mathd.PI_PRECISE / n)));
+        return Mathd.Sqrt((Mathd.Tan(Mathd.PI_PRECISE / 2 - Mathd.PI_PRECISE / k) - Mathd.Tan(Mathd.PI_PRECISE / n)) / (Mathd.Tan(Mathd.PI_PRECISE / 2 - Mathd.PI / k) + Mathd.Tan(Mathd.PI / n)));
     }
 
     /*******************

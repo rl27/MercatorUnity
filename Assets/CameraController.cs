@@ -10,8 +10,6 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Vector3d v = new Vector3d(1d, 4d, 2d);
-        Debug.Log(Hyper.hypEval(v));
     }
 
     // Update is called once per frame
