@@ -5,13 +5,13 @@ using UnityEngine;
 
 public class Hyper
 {
-    // Evaluate on hyperboloid
+    // Evaluate on hyperboloid (negative of Minkowski quadratic form)
     public static double hypEval(Vector3d v)
     {
         return v[1] * v[1] - v[0] * v[0] - v[2] * v[2];
     }
 
-    // Minkowski dot product
+    // Minkowski dot product (negative of Minkowski bilinear form)
     public static double minkDot(Vector3d a, Vector3d b)
     {
         // return (hypEval(a+b) - hypEval(a) - hypEval(b))/2
@@ -40,7 +40,7 @@ public class Hyper
     // Minkowski projection of a onto b
     public static Vector3d minkProjection(Vector3d a, Vector3d b)
     {
-        return b * (minkDot(a, b) / minkDot(b, b));
+        return b * (minkDot(a, b) / minkDot(b, b)); // Can also do q(a,b) / q(b,b)
     }
 
     // Extend a through b to c, such that the midpoint of a and c is b.
@@ -78,7 +78,7 @@ public class Hyper
     // Derivation: y^2 = 1 + x^2 + z^2, y = x/a - 1, y = z/c - 1, sub x and z in the first equation.
     public static Vector3d reversePoincare(double a, double b)
     {
-        double d = Mathd.Pow(a, 2.0f) + Mathd.Pow(b, 2.0f);
+        double d = Mathd.Pow(a, 2.0d) + Mathd.Pow(b, 2.0d);
         Debug.Assert(d < 1);
         double y = (1 + d) / (1 - d);
         return new Vector3d(a * (y + 1), y, b * (y + 1));
@@ -95,6 +95,12 @@ public class Hyper
     {
         // return Mathd.Sqrt((Mathd.Tan(Mathd.PI / 2 - Mathd.PI / k) - Mathd.Tan(Mathd.PI / n)) / (Mathd.Tan(Mathd.PI / 2 - Mathd.PI / k) + Mathd.Tan(Mathd.PI_PRECISE / n)));
         return Mathd.Sqrt((Mathd.Tan(Mathd.PI_PRECISE / 2 - Mathd.PI_PRECISE / k) - Mathd.Tan(Mathd.PI_PRECISE / n)) / (Mathd.Tan(Mathd.PI_PRECISE / 2 - Mathd.PI / k) + Mathd.Tan(Mathd.PI / n)));
+    }
+
+    // Returns x, where (x, sqrt(x^2 + 1), 0) is a point on the hyperboloid representing a vertex of the origin polygon.
+    public static double circleRadius(int n, int k)
+    {
+        return Mathd.Sqrt(-1 + 1 / (Math.Pow(Mathd.Tan(Mathd.PI_PRECISE / n), 2.0d) * Math.Pow(Mathd.Tan(Mathd.PI_PRECISE / k), 2.0d)));
     }
 
     /*******************

@@ -23,6 +23,7 @@ public class Polygons : MonoBehaviour
 
         float angle = 2 * Mathf.PI / numVertices;
 
+        // https://www.youtube.com/watch?v=dMBkigAN9B8
         // Polygon vertices
         Vector3[] vertices = new Vector3[numVertices];
         for (int i = 0; i < numVertices; i++)
