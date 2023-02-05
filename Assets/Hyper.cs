@@ -98,9 +98,9 @@ public class Hyper
     }
 
     // Returns x, where (x, sqrt(x^2 + 1), 0) is a point on the hyperboloid representing a vertex of the origin polygon.
-    public static double circleRadius(int n, int k)
+    public static double firstVertex(int n, int k)
     {
-        return Mathd.Sqrt(-1 + 1 / (Math.Pow(Mathd.Tan(Mathd.PI_PRECISE / n), 2.0d) * Math.Pow(Mathd.Tan(Mathd.PI_PRECISE / k), 2.0d)));
+        return Mathd.Sqrt(-1 + 1 / (Mathd.Pow(Mathd.Tan(Mathd.PI_PRECISE / n), 2.0d) * Mathd.Pow(Mathd.Tan(Mathd.PI_PRECISE / k), 2.0d)));
     }
 
     /*******************
