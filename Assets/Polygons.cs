@@ -49,7 +49,7 @@ public class Polygons : MonoBehaviour
     void Start()
     {
         GameObject go = createPolygon();
-        Debug.Log(go.GetComponent<MeshRenderer>().material.color);
+        // Debug.Log(go.GetComponent<MeshRenderer>().material.color);
         GameObject go2 = createPolygon();
 
 
