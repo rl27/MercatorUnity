@@ -10,9 +10,6 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Tile t = new Tile(4, 5);
-        // t.expand();
-        // List<Tile> n = t.getNeighbors();
     }
 
     // Update is called once per frame
