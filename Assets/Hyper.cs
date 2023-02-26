@@ -24,6 +24,12 @@ public class Hyper
         return v / Mathd.Sqrt(Mathd.Abs(hypEval(v)));
     }
 
+    // Get direction (tangent at point a) of geodesic from a to b
+    public static Vector3d getDir(Vector3d a, Vector3d b)
+    {
+        return hypNormalize(b - minkProjection(b, a));
+    }
+
     // Hyperbolic midpoint of a and b
     public static Vector3d midpoint(Vector3d a, Vector3d b)
     {
@@ -48,15 +54,21 @@ public class Hyper
     public static Vector3d extend(Vector3d a, Vector3d b)
     {
         double w = dist(a, b);
-        Vector3d proj = hypNormalize(b - minkProjection(b, a));
-        return a * Cosh(2 * w) + proj * Sinh(2 * w);
+        Vector3d comp = getDir(a, b);
+        return a * Cosh(2 * w) + comp * Sinh(2 * w);
     }
 
     // Form line from a to b and return c, such that the dist from a to c is d.
     public static Vector3d line(Vector3d a, Vector3d b, double d)
     {
-        Vector3d proj = hypNormalize(b - minkProjection(b, a));
-        return a * Cosh(d) + proj * Sinh(d);
+        Vector3d comp = getDir(a, b);
+        return a * Cosh(d) + comp * Sinh(d);
+    }
+
+    // Travel d distance from a along dir.
+    public static Vector3d lineDir(Vector3d a, Vector3d dir, double d)
+    {
+        return a * Cosh(d) + dir * Sinh(d);
     }
 
     // Given x and two points p and q, construct point y such that dist(x,p) = dist(y,q) and vice versa.
@@ -67,7 +79,7 @@ public class Hyper
         return x - 2 * (-minkDot(x, u)) * u;
     }
 
-    // Get Poincare projection from hyperboloid to (0,-1,0)
+    // Get Poincare projection from hyperboloid through y=0 to (0,-1,0)
     public static Vector3d getPoincare(Vector3d v)
     {
         double y1 = v.y + 1;
@@ -84,7 +96,7 @@ public class Hyper
         return new Vector3d(a * (y + 1), y, b * (y + 1));
     }
 
-    // Get Beltrami-Klein projection from hyperboloid to (0,0,0)
+    // Get Beltrami-Klein projection from hyperboloid through y=1 to (0,0,0)
     public static Vector3d getBeltrami(Vector3d v)
     {
         return new Vector3d(v.x / v.y, 0, v.z / v.y);
@@ -228,5 +240,23 @@ public class Hyper
     public static Vector3d rotate(Vector3d v, double angle)
     {
         return new Vector3d(v.x * Mathd.Cos(angle) - v.z * Mathd.Sin(angle), v.y, v.x * Mathd.Sin(angle) + v.z * Mathd.Cos(angle));
+    }
+
+    // https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+    // Clockwise rotation around an axis --- v is the vector, n is the axis
+    // This becomes a CCW rotation if you swap y and z in v and n, then swap back after rotating'
+    // NOTE: The original rotation preserves Euclidean norm, but not hyperbolic quadratic form.
+    // I added a normalize so the quadratic form is preserved.
+    public static Vector3d rotateAxis(Vector3d v, Vector3d n, double t)
+    {
+        n = Vector3d.Normalize(n);
+        // Third part of the formula may be unnecessary if doing hypernorm.
+        return hypNormalize(v * Mathd.Cos(t) + Vector3d.Cross(n, v) * Mathd.Sin(t) + n * (Vector3d.Dot(n, v)) * (1 - Mathd.Cos(t)));
+    }
+
+    // Gradient on hyperboloid
+    public static Vector3d gradient(Vector3d v)
+    {
+        return new Vector3d(2 * v.x, -2 * v.y, 2 * v.z);
     }
 }

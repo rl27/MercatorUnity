@@ -7,6 +7,13 @@ public class Polygons : MonoBehaviour
     public Dictionary<Tile, GameObject> tile_dict = new Dictionary<Tile, GameObject>();
     int n = 4;
     int k = 5;
+    Tile curTile;
+
+    List<Tile> visible2;
+
+    System.DateTime lastTime;
+
+    PlayerController pc;
 
     // https://forum.unity.com/threads/how-to-instantiate-a-mesh-asset.1088176/
     GameObject createPolygon()
@@ -55,25 +62,57 @@ public class Polygons : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Debug.Log(go.GetComponent<MeshRenderer>().material.color);
-
         // Origin
-        Tile curTile = new Tile(n, k);
+        curTile = new Tile(n, k);
         curTile.setStart(new Vector3d(0, 0, 0));
-        // curTile.expand();
+        pc = GameObject.FindObjectOfType<PlayerController>();
+        lastTime = System.DateTime.Now;
+        visible2 = new List<Tile>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Render all tiles
+        // Check for tile change
+        System.DateTime curTime = System.DateTime.Now;
+        if ((curTime - lastTime).TotalSeconds > 0.3) {
+            double distCur = curTile.center.y;
+            foreach (Tile neighbor in curTile.getNeighbors()) {
+                if (distCur > neighbor.center.y) {
+                    curTile = neighbor;
+                    pc.pos = curTile.center;
+
+                    Vector3d reversed = Hyper.reverseXZ(curTile.vertices[0].getPos(), pc.pos.x, pc.pos.z);
+                    // curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
+
+                    lastTime = curTime;
+                    break;
+                }
+            }
+        }
+
+        // Update tiles to be created/rendered based on current tile
+        curTile.setStart(pc.pos);
+
+        // Hide old tiles
+        foreach (Tile t in visible2) {
+            tile_dict[t].SetActive(false);
+        }
+        visible2 = new List<Tile>(Tile.visible);
+
+        // Render all visible tiles
         foreach (Tile t in Tile.visible) {
+            // Create polygon and dict entry if not present
             if (!tile_dict.ContainsKey(t)) {
                 GameObject pg = createPolygon();
                 setPolygonColor(t, pg);
                 tile_dict.Add(t, pg);
             }
+            
+            // Set polygon position in world
             setPolygonVerts(t, tile_dict[t]);
+            tile_dict[t].SetActive(true);
         }
+
     }
 }

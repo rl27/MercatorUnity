@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public Vector3d rotation = Vector3d.zero;
-    double sensitivity = 3;
+    public Vector3d rotation = new Vector3d(0, 0, 0);
+    public double sensitivity = 0.01;
 
     // Start is called before the first frame update
     void Start()
