@@ -76,18 +76,30 @@ public class Polygons : MonoBehaviour
         // Check for tile change
         System.DateTime curTime = System.DateTime.Now;
         if ((curTime - lastTime).TotalSeconds > 0.3) {
-            double distCur = curTile.center.y;
-            foreach (Tile neighbor in curTile.getNeighbors()) {
-                if (distCur > neighbor.center.y) {
-                    curTile = neighbor;
-                    pc.pos = curTile.center;
-
-                    Vector3d reversed = Hyper.reverseXZ(curTile.vertices[0].getPos(), pc.pos.x, pc.pos.z);
-                    // curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
-
-                    lastTime = curTime;
-                    break;
+            double yCur = curTile.center.y;
+            //foreach (Tile neighbor in curTile.getNeighbors()) {
+            Tile newTile = curTile;
+            foreach (Tile t in Tile.visible) {
+                if (t.center.y < yCur) {
+                    yCur = t.center.y;
+                    newTile = t;
                 }
+            }
+            
+            if (newTile != curTile) {
+                curTile = newTile;
+
+                // New position relative to new tile
+                // Transform new tile to (0, 1, 0), perform same transformation on (0, 1, 0) to get new position
+                // When rendering tile, transform player to (0, 1, 0)
+                Vector3d xz = Hyper.getXZ(curTile.center);
+                pc.pos = Hyper.hypNormalize(Hyper.reverseXZ(Vector3d.up, xz.x, xz.z));
+                pc.dir = Hyper.hypNormalize(Hyper.reverseXZ(pc.dir, xz.x, xz.z));
+
+                Vector3d reversed = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
+                curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
+
+                lastTime = curTime;
             }
         }
 

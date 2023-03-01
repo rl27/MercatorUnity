@@ -74,14 +74,17 @@ public class PlayerController : MonoBehaviour
         // Gradient gives normal to hyperboloid
         Vector3d norm = new Vector3d(2 * pos.x, -2 * pos.y, 2 * pos.z);
 
-        // Forward/backward
-        pos = Hyper.lineDir(pos, dir, moveSpeed * verticalInput);
+        // Forward/backward; need to normalize or small errors will quickly build up
+        pos = Hyper.hypNormalize(Hyper.lineDir(pos, dir, moveSpeed * verticalInput));
 
         // Right/left
         /*
         right = Hyper.rotateAxis(dir, norm, Mathd.PI_PRECISE / 2);
-        pos = Hyper.lineDir(pos, right, horizontalInput);
-        dir = ???????
+        Vector3d newPos = Hyper.lineDir(pos, right, horizontalInput);
+        Vector3d xz = getXZ(pos);
+        Vector3d relXZ = getXZ(reverseXZ(newPos, xz.x, xz.z));
+        pos = newPos;
+        dir = translateXZ(dir, xz.x, xz.z);
         */
 
         
