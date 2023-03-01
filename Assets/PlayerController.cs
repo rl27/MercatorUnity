@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     Rigidbody rb;
-    float moveSpeed = 0.003f;
+    float moveSpeed = 0.01f;
     public Vector3d pos;
     public Vector3d dir;
     Vector3d right;
@@ -58,6 +58,6 @@ public class PlayerController : MonoBehaviour
         // Right/left
         theta = theta - Mathd.PI_PRECISE / 2;
         right = new Vector3d(Mathd.Cos(theta), 0, Mathd.Sin(theta));
-        // pos = hypNormalize(Hyper.lineDir(pos, right, moveSpeed * horizontalInput));
+        pos = Hyper.hypNormalize(Hyper.lineDir(pos, right, moveSpeed * horizontalInput));
     }
 }

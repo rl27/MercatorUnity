@@ -93,20 +93,30 @@ public class Polygons : MonoBehaviour
 
                 tilePos = curTile.center;
 
+                // Compare current tile rotation to default rotation by moving tile to (0, 1, 0)
+                // and inspecting vertices[0]
                 Vector3d xz = Hyper.getXZ(tilePos);
-                Vector3d nonAnglePos = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
-                curTile.angle = Mathd.Atan2(nonAnglePos.z, nonAnglePos.x);
+                Vector3d reversed = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
+                curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
 
                 lastTime = curTime;
             }
         }
 
-        // Update tilePos and set pc.pos back to (0, 1, 0) if pc.pos changed
+        // If pc.pos changed, transform it to (0, 1, 0) and perform same transform on curTile
         if (Vector3d.Magnitude(pc.pos - Vector3d.up) != 0)
         {
+            // Transform center
             Vector3d xz = Hyper.getXZ(pc.pos);
             tilePos = Hyper.hypNormalize(Hyper.reverseXZ(tilePos, xz.x, xz.z));
             pc.pos = Vector3d.up;
+
+            // Get new vertex position and set angle
+            Vector3d v0_newpos = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
+            xz = Hyper.getXZ(tilePos);
+            Vector3d reversed = Hyper.reverseXZ(v0_newpos, xz.x, xz.z);
+            curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
+
         }
 
         // Update tiles to be created/rendered based on current tile
