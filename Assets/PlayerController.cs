@@ -75,6 +75,8 @@ public class PlayerController : MonoBehaviour
         Vector3d norm = new Vector3d(2 * pos.x, -2 * pos.y, 2 * pos.z);
 
         // Forward/backward; need to normalize or small errors will quickly build up
+        double theta = - cc.rotation.y * Mathd.Deg2Rad + Mathd.PI_PRECISE / 2;
+        dir = new Vector3d(Mathd.Cos(theta), 0, Mathd.Sin(theta));
         pos = Hyper.hypNormalize(Hyper.lineDir(pos, dir, moveSpeed * verticalInput));
 
         // Right/left
@@ -86,11 +88,5 @@ public class PlayerController : MonoBehaviour
         pos = newPos;
         dir = translateXZ(dir, xz.x, xz.z);
         */
-
-        
-        // double theta = - sensitivity * Input.GetAxis("Mouse X") * Mathd.Deg2Rad;
-        double theta = (- cc.rotation.y + rotY) * Mathd.Deg2Rad;
-        rotY = cc.rotation.y;
-        dir = Hyper.rotateAxis(dir, norm, theta);
     }
 }

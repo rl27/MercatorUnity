@@ -253,7 +253,7 @@ public class Tile
         }
     }
 
-    public void setStart(Vector3d relPos)
+    public void setStart(Vector3d pos)
     {
         double fv = Hyper.firstVertex(n, k);
         vertices[0].setPos(Hyper.rotate(new Vector3d(fv, Mathd.Sqrt(Mathd.Pow(fv, 2.0d) + 1), 0), angle));
@@ -261,11 +261,11 @@ public class Tile
         for (int i = 1; i < n; i++)
             vertices[i].setPos(Hyper.rotate(vertices[i-1].getPos(), 2 * Mathd.PI_PRECISE / n));
 
-        Vector3d xz = Hyper.getXZ(relPos);
+        Vector3d xz = Hyper.getXZ(pos);
         for (int i = 0; i < n; i++)
-            vertices[i].setPos(Hyper.reverseXZ(vertices[i].getPos(), xz.x, xz.z));
+            vertices[i].setPos(Hyper.translateXZ(vertices[i].getPos(), xz.x, xz.z));
 
-        center = Hyper.reverseXZ(Vector3d.up, xz.x, xz.z);
+        center = Hyper.translateXZ(Vector3d.up, xz.x, xz.z);
 
         next.Clear();
         next.Add(this);

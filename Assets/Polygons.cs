@@ -5,9 +5,10 @@ using UnityEngine;
 public class Polygons : MonoBehaviour
 {
     public Dictionary<Tile, GameObject> tile_dict = new Dictionary<Tile, GameObject>();
-    int n = 4;
-    int k = 5;
+    int n = 5;
+    int k = 7;
     Tile curTile;
+    Vector3d tilePos;
 
     List<Tile> visible2;
 
@@ -68,6 +69,7 @@ public class Polygons : MonoBehaviour
         pc = GameObject.FindObjectOfType<PlayerController>();
         lastTime = System.DateTime.Now;
         visible2 = new List<Tile>();
+        tilePos = Vector3d.up;
     }
 
     // Update is called once per frame
@@ -89,22 +91,26 @@ public class Polygons : MonoBehaviour
             if (newTile != curTile) {
                 curTile = newTile;
 
-                // New position relative to new tile
-                // Transform new tile to (0, 1, 0), perform same transformation on (0, 1, 0) to get new position
-                // When rendering tile, transform player to (0, 1, 0)
-                Vector3d xz = Hyper.getXZ(curTile.center);
-                pc.pos = Hyper.hypNormalize(Hyper.reverseXZ(Vector3d.up, xz.x, xz.z));
-                pc.dir = Hyper.hypNormalize(Hyper.reverseXZ(pc.dir, xz.x, xz.z));
+                tilePos = curTile.center;
 
-                Vector3d reversed = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
-                curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
+                Vector3d xz = Hyper.getXZ(tilePos);
+                Vector3d nonAnglePos = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
+                curTile.angle = Mathd.Atan2(nonAnglePos.z, nonAnglePos.x);
 
                 lastTime = curTime;
             }
         }
 
+        // Update tilePos and set pc.pos back to (0, 1, 0) if pc.pos changed
+        if (Vector3d.Magnitude(pc.pos - Vector3d.up) != 0)
+        {
+            Vector3d xz = Hyper.getXZ(pc.pos);
+            tilePos = Hyper.hypNormalize(Hyper.reverseXZ(tilePos, xz.x, xz.z));
+            pc.pos = Vector3d.up;
+        }
+
         // Update tiles to be created/rendered based on current tile
-        curTile.setStart(pc.pos);
+        curTile.setStart(tilePos);
 
         // Hide old tiles
         foreach (Tile t in visible2) {
