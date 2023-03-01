@@ -25,27 +25,6 @@ public class PlayerController : MonoBehaviour
         cc = GameObject.FindObjectOfType<CameraController>();
         sensitivity = cc.sensitivity;
         rotY = cc.rotation.y;
-
-        /*
-        Vector3d p = new Vector3d(1, Mathd.Sqrt(6), 2);
-        Vector3d q = new Vector3d(2, Mathd.Sqrt(14), 3);
-        Vector3d d = Hyper.getDir(p, q);
-        Vector3d r = Hyper.rotateAxis(d, Hyper.gradient(p), Mathd.PI_PRECISE / 2);
-        
-        Vector3d d2 = Hyper.getDir(q, p);
-        Vector3d r2 = Hyper.rotateAxis(d2, Hyper.gradient(q), Mathd.PI_PRECISE / 2);
-
-        Vector3d newP = Hyper.lineDir(p, r, 0.3);
-        Vector3d newQ = Hyper.lineDir(q, r2, -0.3);
-        Vector3d newD = Hyper.getDir(newP, newQ);
-        Debug.Log(newP);
-        Debug.Log(newQ);
-        Debug.Log(newD);
-
-        Vector3d s = Hyper.lineDir(p, d, 0.7);
-        Debug.Log(s);
-        */
-        
     }
 
     // Update is called once per frame
@@ -62,17 +41,14 @@ public class PlayerController : MonoBehaviour
                                   0,
                                   Mathf.Sin(rotation) * horizontalInput + Mathf.Cos(rotation) * verticalInput) * moveSpeed;
         */
-        
-        
+         
         /***
-        Direct XZ translation causes wonky movement when far from origin? New method:
-        - Maintain a position on the hyperboloid and a tangent vector (i.e. direction).
-        - Moving forward means moving in that direction.
-        - Looking around means rotating the tangent vector around in the plane tangent to the hyperboloid at the position.
+        Direct XZ translation causes wonky movement when far from origin. New method:
+        - Maintain player position at (0, 1, 0) and a tangent vector (i.e. direction).
+        - Moving forward means moving in that direction (easy to get since position stays at (0, 1, 0)).
+        - Keep position of closest tile on hyperboloid. When player moves, transform player back to (0, 1, 0)
+          and transform the tile position along with it.
         ***/
-
-        // Gradient gives normal to hyperboloid
-        Vector3d norm = new Vector3d(2 * pos.x, -2 * pos.y, 2 * pos.z);
 
         // Forward/backward; need to normalize or small errors will quickly build up
         double theta = - cc.rotation.y * Mathd.Deg2Rad + Mathd.PI_PRECISE / 2;
@@ -80,13 +56,8 @@ public class PlayerController : MonoBehaviour
         pos = Hyper.hypNormalize(Hyper.lineDir(pos, dir, moveSpeed * verticalInput));
 
         // Right/left
-        /*
-        right = Hyper.rotateAxis(dir, norm, Mathd.PI_PRECISE / 2);
-        Vector3d newPos = Hyper.lineDir(pos, right, horizontalInput);
-        Vector3d xz = getXZ(pos);
-        Vector3d relXZ = getXZ(reverseXZ(newPos, xz.x, xz.z));
-        pos = newPos;
-        dir = translateXZ(dir, xz.x, xz.z);
-        */
+        theta = theta - Mathd.PI_PRECISE / 2;
+        right = new Vector3d(Mathd.Cos(theta), 0, Mathd.Sin(theta));
+        // pos = hypNormalize(Hyper.lineDir(pos, right, moveSpeed * horizontalInput));
     }
 }

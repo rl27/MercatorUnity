@@ -5,8 +5,8 @@ using UnityEngine;
 public class Polygons : MonoBehaviour
 {
     public Dictionary<Tile, GameObject> tile_dict = new Dictionary<Tile, GameObject>();
-    int n = 5;
-    int k = 7;
+    int n = 4;
+    int k = 5;
     Tile curTile;
     Vector3d tilePos;
 
