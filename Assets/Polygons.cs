@@ -53,6 +53,9 @@ public class Polygons : MonoBehaviour
             vertices[i] = (Vector3) Hyper.getPoincare(t.vertices[n - i - 1].getPos());
         }
         pg.GetComponent<MeshFilter>().mesh.vertices = vertices;
+        
+        // Without this, the polygons will visibly disappear when looking at certain angles
+        pg.GetComponent<MeshFilter>().mesh.RecalculateBounds();
     }
 
     // Set a polygon's color to a tile's color
@@ -121,6 +124,20 @@ public class Polygons : MonoBehaviour
 
         // Update tiles to be created/rendered based on current tile
         curTile.setStart(tilePos);
+
+        /*
+        Vector3d c1 = curTile.getNeighbors()[0].center;
+        Vector3d v0 = curTile.getNeighbors()[0].vertices[0].getPos();
+        Vector3d v1 = curTile.getNeighbors()[0].vertices[1].getPos();
+        Vector3d v2 = curTile.getNeighbors()[0].vertices[2].getPos();
+        Vector3d v3 = curTile.getNeighbors()[0].vertices[3].getPos();
+        Vector3d dir0 = Hyper.getDir(c1, v0);
+        Vector3d dir1 = Hyper.getDir(c1, v1);
+        Vector3d dir2 = Hyper.getDir(c1, v2);
+        Vector3d dir3 = Hyper.getDir(c1, v3);
+
+        Debug.Log("(" + dir0[0] + "," + dir0[2] + "," + dir0[1] + ")");
+        */
 
         // Hide old tiles
         foreach (Tile t in visible2) {

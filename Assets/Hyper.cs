@@ -250,7 +250,7 @@ public class Hyper
     public static Vector3d rotateAxis(Vector3d v, Vector3d n, double t)
     {
         n = Vector3d.Normalize(n);
-        // Third part of the formula may be unnecessary if doing hypernorm.
+        // Third part of the formula should be unnecessary if doing hypernorm.
         return hypNormalize(v * Mathd.Cos(t) + Vector3d.Cross(n, v) * Mathd.Sin(t) + n * (Vector3d.Dot(n, v)) * (1 - Mathd.Cos(t)));
     }
 

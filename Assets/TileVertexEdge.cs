@@ -16,8 +16,8 @@ public class Tile
     // public int queueNum;
     public Tile parent;
 
-    public List<Vertex> vertices;
-    public List<Edge> edges;
+    public List<Vertex> vertices; // CCW order
+    public List<Edge> edges; // CCW order
 
     public int n; // Number of vertices per tile
     public int k; // Number of tiles per vertex
@@ -151,6 +151,7 @@ public class Tile
         // queueNum = -1;
     }
 
+    // Once all vertices are set, fill edges vector with edges
     public void populateEdges()
     {
         for (int i = 0; i < n; i++) {
@@ -160,6 +161,7 @@ public class Tile
         }
     }
 
+    // Find index of edge in edges vector
     public int findEdge(Edge e)
     {
         for (int i = 0; i < n; i++) {
@@ -170,7 +172,9 @@ public class Tile
         return -1;
     }
 
-    public void setVertexLocs(Tile ref_t, Edge e)
+    // Set vertex locations for this tile, given a reference tile and edge
+    // This version reflects vertex locations through the midpoint of the edge
+    public void setVertexLocs1(Tile ref_t, Edge e)
     {
         Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
         center = Hyper.extend(ref_t.center, midpt);
@@ -195,6 +199,7 @@ public class Tile
         }
     }
 
+    // This version uses Hyper.symmetry and is more accurate than version 1.
     public void setVertexLocs2(Tile ref_t, Edge e)
     {
         Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
@@ -220,6 +225,36 @@ public class Tile
         }
     }
 
+    // This version uses rotation around the tile center
+    // Seems slightly more accurate than setVertexLocs2 when using (n,k) = (4,5) and expand radius = 0.89
+    public void setVertexLocs3(Tile ref_t, Edge e)
+    {
+        Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
+        center = Hyper.extend(ref_t.center, midpt);
+
+        Vertex vertex = e.verts(center)[1];
+        Edge edge = vertex.prev(e);
+
+        Vector3d dir = Hyper.getDir(center, e.verts(center)[0].getPos());
+        Vector3d dir2 = Hyper.getDir(center, vertex.getPos());
+        Vector3d dir3 = Hyper.getDir(dir, dir2);
+        double angle = 2 * Mathd.PI_PRECISE / n;
+
+        // Distance from center to vertex
+        double dist = System.Math.Acosh(Mathd.Sqrt(Mathd.Pow(Hyper.firstVertex(n, k), 2.0d) + 1));
+
+        for (int i = 2; i < n; i++) {
+            vertex = (vertex == edge.vertex1) ? edge.vertex2 : edge.vertex1;
+
+            Vector3d newDir = dir * Mathd.Cos(i * angle) + dir3 * Mathd.Sin(i * angle);
+            Vector3d next_loc = Hyper.line(center, newDir, dist);
+            vertex.setPos(next_loc);
+
+            edge = vertex.prev(edge);
+        }
+    }
+
+    // Get tile neighbors
     public List<Tile> getNeighbors()
     {
         List<Tile> neighbors = new List<Tile>();
@@ -232,6 +267,7 @@ public class Tile
         return neighbors;
     }
 
+    // Expand in all n directions, creating new tiles if necessary
     public void expand()
     {
         foreach (Edge e in edges) {
@@ -248,11 +284,13 @@ public class Tile
             if (other_tile is not null && !other_tile.isVisible()) {
                 next.Add(other_tile);
                 visible.Add(other_tile);
-                other_tile.setVertexLocs2(this, e);
+                other_tile.setVertexLocs3(this, e);
             }
         }
     }
 
+    // Set starting tile position based on relative position to its center
+    // Calls expand() repeatedly
     public void setStart(Vector3d pos)
     {
         double fv = Hyper.firstVertex(n, k);
@@ -292,11 +330,13 @@ public class Tile
         }*/
     }
 
+    // Check if tile is in vector of all currently updated/visible tiles
     public bool isVisible()
     {
         return visible.Contains(this);
     }
 
+    // Check if any of the tile's Poincare-projected vertices are within the given radius
     bool withinRadius(double rad)
     {
         foreach (Vertex v in vertices) {
@@ -313,7 +353,7 @@ public class Tile
 
 public class Vertex
 {
-    int k;
+    int k; // Number of edges per vertex.
     public List<Edge> edges;
     Vector3d pos;
     public bool initialized;
@@ -349,12 +389,14 @@ public class Vertex
         edges.Add(e);
     }
 
+    // Get next edge in counter clockwise order.
     public Edge next(Edge e)
     {
         int idx = seekEdge(e);
 	    return edges[(idx + 1) % k];
     }
 
+    // Get prev edge in ccw order (i.e. next edge in clockwise order).
     public Edge prev(Edge e)
     {
         int idx = seekEdge(e);
@@ -379,6 +421,7 @@ public class Vertex
         edges[idx] = newEdge;
     }
 
+    // Find index of given edge in the vector of edges.
     public int seekEdge(Edge e)
     {
         for (int i = 0; i < k; i++) {
@@ -389,6 +432,7 @@ public class Vertex
         return -1;
     }
 
+    // Find edge connecting this vertex to the given one.
     public Edge seekVertex(Vertex v)
     {
         foreach (Edge e in edges) {
@@ -436,6 +480,7 @@ public class Edge
         return new List<Vertex> { vertex1, vertex2 };
     }
 
+    // Get vertices in ccw order relative to given center
     public List<Vertex> verts(Vector3d center)
     {
         Vector3d v1 = Hyper.getPoincare(vertex1.getPos()) - Hyper.getPoincare(center);
