@@ -242,7 +242,7 @@ public class Tile
     public void setVertexLocs3(Tile ref_t, Edge e)
     {
         Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
-        center = Hyper.extend(ref_t.center, midpt);
+        center = Hyper.hypNormalize(Hyper.extend(ref_t.center, midpt));
 
         List<Vertex> verts = e.verts2(ref_t);
         Vertex vertex = verts[0];
@@ -261,7 +261,7 @@ public class Tile
 
             Vector3d newDir = dir * Mathd.Cos(i * angle) + dir3 * Mathd.Sin(i * angle);
             Vector3d next_loc = Hyper.line(center, newDir, dist);
-            vertex.setPos(next_loc);
+            vertex.setPos(Hyper.hypNormalize(next_loc));
 
             edge = vertex.prev(edge);
         }
@@ -313,20 +313,20 @@ public class Tile
 
         Vector3d xz = Hyper.getXZ(pos);
         for (int i = 0; i < n; i++)
-            vertices[i].setPos(Hyper.translateXZ(vertices[i].getPos(), xz.x, xz.z));
+            vertices[i].setPos(Hyper.hypNormalize(Hyper.translateXZ(vertices[i].getPos(), xz.x, xz.z)));
 
-        center = Hyper.translateXZ(Vector3d.up, xz.x, xz.z);
-
-        next.Clear();
-        next.Add(this);
+        center = Hyper.hypNormalize(Hyper.translateXZ(Vector3d.up, xz.x, xz.z));
 
         visible.Clear();
         visible.Add(this);
 
+        next.Clear();
+        next.Add(this);
+
         while (next.Count != 0) {
             Tile t = next[next.Count - 1];
             next.RemoveAt(next.Count - 1);
-            if (t.withinRadius(0.9))
+            if (t.withinRadius(0.92))
                 t.expand();
         }
 

@@ -49,12 +49,11 @@ public class Polygons : MonoBehaviour
     // Set a polygon's vertex positions to a tile's Poincare-projected Vertex positions
     void setPolygonVerts(Tile t, GameObject pg) {
         Vector3[] vertices = new Vector3[n];
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++)
             vertices[i] = (Vector3) Hyper.getPoincare(t.vertices[n - i - 1].getPos());
-        }
         pg.GetComponent<MeshFilter>().mesh.vertices = vertices;
         
-        // Without this, the polygons will visibly disappear when looking at certain angles
+        // Without this line, the polygons will visibly disappear when looking at certain angles
         pg.GetComponent<MeshFilter>().mesh.RecalculateBounds();
     }
 
@@ -82,8 +81,8 @@ public class Polygons : MonoBehaviour
         System.DateTime curTime = System.DateTime.Now;
         if ((curTime - lastTime).TotalSeconds > 0.3) {
             double yCur = curTile.center.y;
-            //foreach (Tile neighbor in curTile.getNeighbors()) {
             Tile newTile = curTile;
+            //foreach (Tile neighbor in curTile.getNeighbors()) {
             foreach (Tile t in Tile.visible) {
                 if (t.center.y < yCur) {
                     yCur = t.center.y;
@@ -126,9 +125,9 @@ public class Polygons : MonoBehaviour
         curTile.setStart(tilePos);
 
         // Hide old tiles
-        foreach (Tile t in visible2) {
+        foreach (Tile t in visible2)
             tile_dict[t].SetActive(false);
-        }
+        
         visible2 = new List<Tile>(Tile.visible);
 
         // Render all visible tiles
@@ -144,6 +143,5 @@ public class Polygons : MonoBehaviour
             setPolygonVerts(t, tile_dict[t]);
             tile_dict[t].SetActive(true);
         }
-
     }
 }
