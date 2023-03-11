@@ -21,6 +21,8 @@ public class Tile
 
     public int n; // Number of vertices per tile
     public int k; // Number of tiles per vertex
+    double fv; // Precompute firstVertex()
+    double fvY;
 
     // Only for origin tile
     public Tile(int n, int k)
@@ -47,7 +49,8 @@ public class Tile
         center = Vector3d.up;
 
         // Vertex first_vert = new Vertex(k, Hyper.reversePoincare(Hyper.circleRadius(n, k), 0));
-        double fv = Hyper.firstVertex(n, k);
+        fv = Hyper.firstVertex(n, k);
+        fvY = Mathd.Sqrt(Mathd.Pow(fv, 2.0d) + 1);
         Vertex first_vert = new Vertex(k, new Vector3d(fv, Mathd.Sqrt(Mathd.Pow(fv, 2.0d) + 1), 0));
         vertices.Add(first_vert);
         Edge first_edge = first_vert.edges[0];
@@ -81,6 +84,8 @@ public class Tile
         
         this.n = n;
         this.k = k;
+        fv = Hyper.firstVertex(n, k);
+        fvY = Mathd.Sqrt(Mathd.Pow(fv, 2.0d) + 1);
 
         vertices = new List<Vertex>();
         edges = new List<Edge>();
@@ -91,13 +96,15 @@ public class Tile
 
         center = Hyper.extend(ref_t.center, Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos()));
 
-        List<Vertex> verts = e.verts(center);
-        vertices.Add(verts[1]);
+        // List<Vertex> verts = e.verts(center);
+        // Swapped verts[0] and verts[1] when changing from verts to verts2
+        List<Vertex> verts = e.verts2(ref_t);
 
-        Vertex back_vert = verts[0];
-        Vertex front_vert = verts[1];
+        Vertex back_vert = verts[1];
+        Vertex front_vert = verts[0];
 
-        vertices.Insert(0, back_vert);
+        vertices.Add(back_vert);
+        vertices.Add(front_vert);
 
         Edge back_edge = back_vert.next(e);
         while (back_vert != front_vert && !back_edge.hasDangling()) {
@@ -110,22 +117,28 @@ public class Tile
         // Made a loop; all vertices accounted for
         if (back_vert == front_vert)
             vertices.RemoveAt(0);
-        else { // Need to complete the vertices
-            
+        // Otherwise, need to complete the vertices; start from front_vert
+        else {
+            // Use process similar to setVertexLocs3
+
             Vertex vertex = front_vert;
             Edge edge = vertex.prev(e);
             edge.addTile(this);
 
-            Vertex reflecting_vertex = e.verts(ref_t.center)[1];
-            Edge ref_edge = reflecting_vertex.prev(e);
+            Vector3d dir = Hyper.getDir(center, verts[1].getPos());
+            Vector3d dir2 = Hyper.getDir(center, verts[0].getPos());
+            Vector3d dir3 = Hyper.getDir(dir, dir2);
+            double angle = 2 * Mathd.PI_PRECISE / n;
+            double dist = System.Math.Acosh(fvY);
 
             Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
 
             int size = vertices.Count;
-            for (int i = size; i < n; i++) {
-                reflecting_vertex = (reflecting_vertex == ref_edge.vertex1) ? ref_edge.vertex2 : ref_edge.vertex1; //reflecting_vertex = ref_edge.verts(ref.center).at(1);
+            for (int i = 2; i < n - size + 2; i++) {
 
-                Vector3d next_loc = Hyper.extend(reflecting_vertex.getPos(), midpt);
+                Vector3d newDir = dir * Mathd.Cos(i * angle) + dir3 * Mathd.Sin(i * angle);
+                Vector3d next_loc = Hyper.line(center, newDir, dist);
+
                 if (!edge.vertex2.initialized) {
                     vertex = edge.vertex2;
                     vertex.clamp(next_loc);
@@ -137,7 +150,6 @@ public class Tile
                 vertices.Add(vertex);
 
                 edge = vertex.prev(edge);
-                ref_edge = reflecting_vertex.prev(ref_edge);
                 edge.addTile(this);
             }
 
@@ -232,16 +244,17 @@ public class Tile
         Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
         center = Hyper.extend(ref_t.center, midpt);
 
-        Vertex vertex = e.verts(center)[1];
+        List<Vertex> verts = e.verts2(ref_t);
+        Vertex vertex = verts[0];
         Edge edge = vertex.prev(e);
 
-        Vector3d dir = Hyper.getDir(center, e.verts(center)[0].getPos());
-        Vector3d dir2 = Hyper.getDir(center, vertex.getPos());
+        Vector3d dir = Hyper.getDir(center, verts[1].getPos());
+        Vector3d dir2 = Hyper.getDir(center, verts[0].getPos());
         Vector3d dir3 = Hyper.getDir(dir, dir2);
         double angle = 2 * Mathd.PI_PRECISE / n;
 
         // Distance from center to vertex
-        double dist = System.Math.Acosh(Mathd.Sqrt(Mathd.Pow(Hyper.firstVertex(n, k), 2.0d) + 1));
+        double dist = System.Math.Acosh(fvY);
 
         for (int i = 2; i < n; i++) {
             vertex = (vertex == edge.vertex1) ? edge.vertex2 : edge.vertex1;
@@ -293,8 +306,7 @@ public class Tile
     // Calls expand() repeatedly
     public void setStart(Vector3d pos)
     {
-        double fv = Hyper.firstVertex(n, k);
-        vertices[0].setPos(Hyper.rotate(new Vector3d(fv, Mathd.Sqrt(Mathd.Pow(fv, 2.0d) + 1), 0), angle));
+        vertices[0].setPos(Hyper.rotate(new Vector3d(fv, fvY, 0), angle));
 
         for (int i = 1; i < n; i++)
             vertices[i].setPos(Hyper.rotate(vertices[i-1].getPos(), 2 * Mathd.PI_PRECISE / n));
@@ -314,7 +326,7 @@ public class Tile
         while (next.Count != 0) {
             Tile t = next[next.Count - 1];
             next.RemoveAt(next.Count - 1);
-            if (t.withinRadius(0.75))
+            if (t.withinRadius(0.9))
                 t.expand();
         }
 
@@ -468,11 +480,11 @@ public class Edge
     public void addTile(Tile t)
     {
         if (tiles.Count == 2)
-            Debug.Log("ALREADY HAS 2 TILES");
+            Debug.Log("Edge.addTile: Already has 2 tiles");
         if (!tiles.Contains(t))
             tiles.Add(t);
         else
-            Debug.Log("DUPLICATE TILE");
+            Debug.Assert(false, "Edge.addTile: Duplicate tile");
     }
 
     public List<Vertex> verts()
@@ -497,6 +509,24 @@ public class Edge
         }
     }
 
+    public List<Vertex> verts2(Tile ref_t)
+    {
+        List<Vertex> vertices = ref_t.vertices;
+        int n = ref_t.n;
+        for (int i = 0; i < vertices.Count; i++) {
+            if (vertices[i] == vertex1) {
+                if (vertices[(i + 1) % n] == vertex2)
+                    return new List<Vertex> { vertex1, vertex2 };
+                else if (vertices[(i - 1 + n) % n] == vertex2) {
+                    return new List<Vertex> { vertex2, vertex1 };
+                }
+                else Debug.Assert(false, "verts2: vertices not adjacent");
+            }
+        }
+        Debug.Assert(false, "verts2: failed to find vertex1");
+        return null;
+    }
+
     public bool hasDangling()
     {
         return (!vertex1.initialized) || (!vertex2.initialized);
@@ -505,28 +535,19 @@ public class Edge
     public void merge(Edge e)
     {
         Debug.Assert(this.hasDangling() && e.hasDangling(), "Edge.merge: no dangling");
-        Vertex old_dangling;
-        Vertex other_dangling;
+        
         if (!vertex1.initialized) {
-            old_dangling = vertex1;
-            if (!e.vertex1.initialized) {
+            if (!e.vertex1.initialized)
                 vertex1 = e.vertex2;
-                other_dangling = e.vertex1;
-            } else {
+            else
                 vertex1 = e.vertex1;
-                other_dangling = e.vertex2;
-            }
             vertex1.replaceEdge(e, this);
         }
         else {
-            old_dangling = vertex2;
-            if (!e.vertex1.initialized) {
+            if (!e.vertex1.initialized)
                 vertex2 = e.vertex2;
-                other_dangling = e.vertex1;
-            } else {
+            else
                 vertex2 = e.vertex1;
-                other_dangling = e.vertex2;
-            }
             vertex2.replaceEdge(e, this);
         }
     }
