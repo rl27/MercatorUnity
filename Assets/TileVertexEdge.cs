@@ -326,7 +326,7 @@ public class Tile
         while (next.Count != 0) {
             Tile t = next[next.Count - 1];
             next.RemoveAt(next.Count - 1);
-            if (t.withinRadius(0.92))
+            if (t.withinRadius2(0.93))
                 t.expand();
         }
 
@@ -355,6 +355,14 @@ public class Tile
             if (Vector3d.Distance(Vector3d.zero, Hyper.getPoincare(v.getPos())) < rad)
                 return true;
         }
+        return false;
+    }
+
+    // Check if the tile's Poincare-projected center is within the given radius
+    bool withinRadius2(double rad)
+    {
+        if (Vector3d.Distance(Vector3d.zero, Hyper.getPoincare(center)) < rad)
+            return true;
         return false;
     }
 }
@@ -480,7 +488,7 @@ public class Edge
     public void addTile(Tile t)
     {
         if (tiles.Count == 2)
-            Debug.Log("Edge.addTile: Already has 2 tiles");
+            Debug.Assert(false, "Edge.addTile: Already has 2 tiles");
         if (!tiles.Contains(t))
             tiles.Add(t);
         else
@@ -520,10 +528,10 @@ public class Edge
                 else if (vertices[(i - 1 + n) % n] == vertex2) {
                     return new List<Vertex> { vertex2, vertex1 };
                 }
-                else Debug.Assert(false, "verts2: vertices not adjacent");
+                else Debug.Assert(false, "Edge.verts2: vertices not adjacent");
             }
         }
-        Debug.Assert(false, "verts2: failed to find vertex1");
+        Debug.Assert(false, "Edge.verts2: failed to find vertex1");
         return null;
     }
 
