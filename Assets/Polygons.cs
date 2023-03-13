@@ -40,7 +40,7 @@ public class Polygons : MonoBehaviour
         // Create origin tile
         curTile = new Tile(n, k);
         curTile.setStart(new Vector3d(0, 0, 0), optionsMenu.getDist());
-        pc = GameObject.FindObjectOfType<PlayerController>();
+        pc = GameObject.Find("Player").GetComponent<PlayerController>();
         lastTime = System.DateTime.Now;
         visible2 = new List<Tile>();
         tilePos = Vector3d.up;
@@ -127,7 +127,7 @@ public class Polygons : MonoBehaviour
         meshFilter.mesh = mesh;
 
         MeshRenderer meshRenderer = go.AddComponent<MeshRenderer>();
-        meshRenderer.material = new Material(Shader.Find("Standard"));
+        meshRenderer.material = new Material(Shader.Find("UI/Default"));
         meshRenderer.material.SetColor("_Color", Random.ColorHSV());
 
         // Polygon vertices

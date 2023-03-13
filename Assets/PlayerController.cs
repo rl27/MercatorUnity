@@ -54,14 +54,5 @@ public class PlayerController : MonoBehaviour
         theta = theta - Mathd.PI_PRECISE / 2;
         right = new Vector3d(Mathd.Cos(theta), 0, Mathd.Sin(theta));
         pos = Hyper.hypNormalize(Hyper.lineDir(pos, right, ms * horizontalInput));
-
-        /*
-        // Height change
-        if (Input.GetKeyUp(KeyCode.UpArrow))
-            transform.position = transform.position + new Vector3(0, 0.2f, 0);
-
-        if (Input.GetKeyUp(KeyCode.DownArrow))
-            transform.position = transform.position + new Vector3(0, -0.2f, 0);
-        */
     }
 }

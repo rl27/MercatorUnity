@@ -21,8 +21,13 @@ public class CameraController : MonoBehaviour
         
         transform.eulerAngles = (Vector3) rotation;
 
-        transform.position = GameObject.Find("Player").transform.position;
+        // transform.position = GameObject.Find("Player").transform.position;
 
-        Camera.main.fieldOfView -= Input.mouseScrollDelta.y;
+        // Camera zoom via scroll wheel
+        // Camera.main.fieldOfView -= Input.mouseScrollDelta.y;
+        
+        // Height change via scroll wheel
+        float newY = Mathf.Max(0.35f, transform.position.y + 0.05f * Input.mouseScrollDelta.y);
+        transform.position = new Vector3(transform.position.x, newY, transform.position.z);
     }
 }
