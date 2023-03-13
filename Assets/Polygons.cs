@@ -19,7 +19,13 @@ public class Polygons : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Origin
+        // Get input n and k, then deactivate menu
+        List<int> nk = GameObject.Find("StartMenu").GetComponent<StartMenu>().getNK();
+        n = nk[0];
+        k = nk[1];
+        GameObject.Find("StartMenu").SetActive(false);
+
+        // Create origin tile
         curTile = new Tile(n, k);
         curTile.setStart(new Vector3d(0, 0, 0));
         pc = GameObject.FindObjectOfType<PlayerController>();

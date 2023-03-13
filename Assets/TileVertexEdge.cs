@@ -28,6 +28,7 @@ public class Tile
     public Tile(int n, int k)
     {
         // https://math.stackexchange.com/questions/85793/symbolic-coordinates-for-a-hyperbolic-grid/192407#192407
+        // Same as checking that (n-2)(k-2) > 4
         Debug.Assert(2*n + 2*k < n*k, "Tile(): invalid n and k");
 
         // Initialize static lists; Only do this once, i.e. only do for origin tile
