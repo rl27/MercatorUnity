@@ -327,7 +327,7 @@ public class Tile
         while (next.Count != 0) {
             Tile t = next[next.Count - 1];
             next.RemoveAt(next.Count - 1);
-            if (t.withinRadius2(0.93))
+            if (t.withinRadius2(50))
                 t.expand();
         }
 
@@ -359,10 +359,10 @@ public class Tile
         return false;
     }
 
-    // Check if the tile's Poincare-projected center is within the given radius
+    // Check if the tile's center is close enough to (0, 1, 0)
     bool withinRadius2(double rad)
     {
-        if (Vector3d.Distance(Vector3d.zero, Hyper.getPoincare(center)) < rad)
+        if (Vector3d.Distance(Vector3d.up, center) < rad)
             return true;
         return false;
     }
