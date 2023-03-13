@@ -16,18 +16,30 @@ public class Polygons : MonoBehaviour
 
     PlayerController pc;
 
+    OptionsMenu optionsMenu;
+
     // Start is called before the first frame update
     void Start()
     {
         // Get input n and k, then deactivate menu
-        List<int> nk = GameObject.Find("StartMenu").GetComponent<StartMenu>().getNK();
-        n = nk[0];
-        k = nk[1];
-        GameObject.Find("StartMenu").SetActive(false);
+        GameObject startMenu = GameObject.Find("StartMenu");
+        // Default to (4,5) if starting in game instead of at start menu
+        if (startMenu == null) {
+            n = 4;
+            k = 5;
+        }
+        else {
+            List<int> nk = startMenu.GetComponent<StartMenu>().getNK();
+            n = nk[0];
+            k = nk[1];
+            startMenu.SetActive(false);
+        }
+
+        optionsMenu = GameObject.Find("MenuHolder").GetComponent<OptionsMenu>();
 
         // Create origin tile
         curTile = new Tile(n, k);
-        curTile.setStart(new Vector3d(0, 0, 0));
+        curTile.setStart(new Vector3d(0, 0, 0), optionsMenu.getDist());
         pc = GameObject.FindObjectOfType<PlayerController>();
         lastTime = System.DateTime.Now;
         visible2 = new List<Tile>();
@@ -82,7 +94,7 @@ public class Polygons : MonoBehaviour
         }
 
         // Update tiles to be created/rendered based on current tile
-        curTile.setStart(tilePos);
+        curTile.setStart(tilePos, optionsMenu.getDist());
 
         // Hide old tiles
         foreach (Tile t in visible2)

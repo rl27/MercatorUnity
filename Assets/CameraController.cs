@@ -22,5 +22,7 @@ public class CameraController : MonoBehaviour
         transform.eulerAngles = (Vector3) rotation;
 
         transform.position = GameObject.Find("Player").transform.position;
+
+        Camera.main.fieldOfView -= Input.mouseScrollDelta.y;
     }
 }

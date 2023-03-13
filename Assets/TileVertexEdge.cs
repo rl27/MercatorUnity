@@ -305,7 +305,7 @@ public class Tile
 
     // Set starting tile position based on relative position to its center
     // Calls expand() repeatedly
-    public void setStart(Vector3d pos)
+    public void setStart(Vector3d pos, float radius)
     {
         vertices[0].setPos(Hyper.rotate(new Vector3d(fv, fvY, 0), angle));
 
@@ -327,7 +327,7 @@ public class Tile
         while (next.Count != 0) {
             Tile t = next[next.Count - 1];
             next.RemoveAt(next.Count - 1);
-            if (t.withinRadius2(50))
+            if (t.withinRadius2(radius))
                 t.expand();
         }
 

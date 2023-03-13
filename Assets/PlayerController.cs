@@ -32,11 +32,6 @@ public class PlayerController : MonoBehaviour
         // Movement on the Euclidean xz plane
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
-        /*
-        rb.velocity = new Vector3(Mathf.Cos(rotation) * horizontalInput - Mathf.Sin(rotation) * verticalInput,
-                                  0,
-                                  Mathf.Sin(rotation) * horizontalInput + Mathf.Cos(rotation) * verticalInput) * moveSpeed;
-        */
          
         /***
         Movement method:
@@ -59,5 +54,14 @@ public class PlayerController : MonoBehaviour
         theta = theta - Mathd.PI_PRECISE / 2;
         right = new Vector3d(Mathd.Cos(theta), 0, Mathd.Sin(theta));
         pos = Hyper.hypNormalize(Hyper.lineDir(pos, right, ms * horizontalInput));
+
+        /*
+        // Height change
+        if (Input.GetKeyUp(KeyCode.UpArrow))
+            transform.position = transform.position + new Vector3(0, 0.2f, 0);
+
+        if (Input.GetKeyUp(KeyCode.DownArrow))
+            transform.position = transform.position + new Vector3(0, -0.2f, 0);
+        */
     }
 }
