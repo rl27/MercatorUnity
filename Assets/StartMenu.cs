@@ -25,12 +25,18 @@ public class StartMenu : MonoBehaviour
 
     public void inputN(string input)
     {
-        int.TryParse(input, out n);
+        if (input == "")
+            n = 4;
+        else
+            int.TryParse(input, out n);
     }
 
     public void inputK(string input)
     {
-        int.TryParse(input, out k);
+        if (input == "")
+            k = 5;
+        else
+            int.TryParse(input, out k);
     }
 
     private bool validNK()
