@@ -27,7 +27,7 @@ public class CameraController : MonoBehaviour
         // Camera.main.fieldOfView -= Input.mouseScrollDelta.y;
         
         // Height change via scroll wheel
-        float newY = Mathf.Max(0.35f, transform.position.y + 0.05f * Input.mouseScrollDelta.y);
+        float newY = Mathf.Max(0.35f, transform.position.y - 0.05f * Input.mouseScrollDelta.y);
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
     }
 }

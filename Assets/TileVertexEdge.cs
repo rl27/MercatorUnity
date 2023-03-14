@@ -325,11 +325,26 @@ public class Tile
         next.Add(this);
 
         while (next.Count != 0) {
-            Tile t = next[next.Count - 1];
-            next.RemoveAt(next.Count - 1);
+            List<Tile> temp = new List<Tile>(next);
+            next.Clear();
+            
+            foreach (Tile t in temp) {
+                if (t.withinRadius2(radius))
+                    t.expand();
+            }
+        }
+
+        /*
+        // Depth-first expanding (i.e. using next[next.Count - 1] instead of next[0])
+        // causes problems with n=3, k=7 at distances of 18.1 (withinRadius2) or greater. Not sure why.
+        while (next.Count != 0) {
+            Tile t = next[0];
+            next.RemoveAt(0);
             if (t.withinRadius2(radius))
                 t.expand();
         }
+        */
+        
 
         /*
         // This is for marking tiles to receive generated outputs; comment out to disable

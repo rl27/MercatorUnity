@@ -5,8 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class OptionsMenu : MonoBehaviour
 {
-    private float dist = 50;
-    private float temp = 50;
+    // Default distance
+    private float dist = 50f;
+    private float temp = 50f;
     private GameObject optionsMenu;
     private bool active = false;
     
