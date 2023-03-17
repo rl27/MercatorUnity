@@ -111,7 +111,7 @@ public class Polygons : MonoBehaviour
             }
             
             // Set polygon position in world
-            setPolygonVerts(t, tile_dict[t], projection);
+            setPolygonVerts(t, tile_dict[t]);
             tile_dict[t].SetActive(true);
         }
     }
@@ -149,15 +149,15 @@ public class Polygons : MonoBehaviour
     // Set a polygon's vertex positions to a tile's Poincare-projected Vertex positions
     // method = 0: poincare
     // method = 1: beltrami
-    void setPolygonVerts(Tile t, GameObject pg, int method) {
-        Debug.Assert(method == 0 || method == 1, "setPolygonVerts: invalid method");
+    void setPolygonVerts(Tile t, GameObject pg) {
+        Debug.Assert(projection == 0 || projection == 1, "setPolygonVerts: invalid projection");
 
         Vector3[] vertices = new Vector3[n];
-        if (method == 0) {
+        if (projection == 0) {
             for (int i = 0; i < n; i++)
                 vertices[i] = (Vector3) Hyper.getPoincare(t.vertices[n - i - 1].getPos());
         }
-        else if (method == 1) {
+        else if (projection == 1) {
             for (int i = 0; i < n; i++)
                 vertices[i] = (Vector3) Hyper.getBeltrami(t.vertices[n - i - 1].getPos());
         }
