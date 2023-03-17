@@ -11,6 +11,9 @@ public class Polygons : MonoBehaviour
     Vector3d tilePos;
 
     private float dist = 50f;
+
+    // 0 = Poincaré
+    // 1 = Klein-Beltrami
     private int projection = 0;
 
     List<Tile> visible2;
@@ -147,8 +150,6 @@ public class Polygons : MonoBehaviour
     }
 
     // Set a polygon's vertex positions to a tile's Poincare-projected Vertex positions
-    // method = 0: poincare
-    // method = 1: beltrami
     void setPolygonVerts(Tile t, GameObject pg) {
         Debug.Assert(projection == 0 || projection == 1, "setPolygonVerts: invalid projection");
 

@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 {
     public Vector3d rotation = new Vector3d(0, 0, 0);
     public double sensitivity = 0.01;
+    public bool disableMovement = false;
 
     // Start is called before the first frame update
     void Start()
@@ -15,6 +16,8 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (disableMovement) return;
+        
         rotation.y += sensitivity * Input.GetAxis("Mouse X");
         rotation.x -= sensitivity * Input.GetAxis("Mouse Y");
         rotation.x = Mathd.Clamp(rotation.x, -90d, 90d);

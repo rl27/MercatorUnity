@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     public Vector3d dir;
     Vector3d right;
 
+    public bool disableMovement = false;
+
     CameraController cc;
 
     // Start is called before the first frame update
@@ -26,6 +28,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (disableMovement) return;
+        
         // Camera rotation goes clockwise, not ccw
         float rotation = - Mathf.Deg2Rad * GameObject.Find("Main Camera").transform.eulerAngles.y;
 

@@ -1523,8 +1523,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 56400613}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
-        m_MethodName: ResumeGame
-        m_Mode: 1
+        m_MethodName: toggleGame
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2592,6 +2592,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensitivity: 3
+  disableMovement: 0
 --- !u!1 &1613841035
 GameObject:
   m_ObjectHideFlags: 0
@@ -3064,6 +3065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27eface4ebac7674ba3b2d7212b1a17a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  disableMovement: 0
 --- !u!4 &2033786337
 Transform:
   m_ObjectHideFlags: 0

@@ -13,7 +13,9 @@ public class OptionsMenu : MonoBehaviour
     private int projection = 0;
 
     Polygons polygons;
-    
+    PlayerController playerController;
+    CameraController cameraController;
+
     void Start()
     {
         optionsMenu = GameObject.Find("OptionsMenu");
@@ -22,23 +24,24 @@ public class OptionsMenu : MonoBehaviour
         polygons = GameObject.Find("TileSpawner").GetComponent<Polygons>();
         polygons.setDist(dist);
         polygons.setProjection(projection);
+
+        cameraController = GameObject.Find("Main Camera").GetComponent<CameraController>();
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     void Update()
     {
         if (Input.GetKeyUp(KeyCode.Escape)) {
-            if (!active) {
-                active = true;
-                optionsMenu.SetActive(true);
-            }
-            else ResumeGame();
+            toggleGame(!active);
         }
     }
 
-    public void ResumeGame()
+    public void toggleGame(bool toggle)
     {
-        active = false;
-        optionsMenu.SetActive(false);
+        active = toggle;
+        optionsMenu.SetActive(toggle);
+        playerController.disableMovement = toggle;
+        cameraController.disableMovement = toggle;   
     }
 
     public void setDist()
