@@ -10,13 +10,14 @@ public class Polygons : MonoBehaviour
     Tile curTile;
     Vector3d tilePos;
 
+    private float dist = 50f;
+    private int projection = 0;
+
     List<Tile> visible2;
 
     System.DateTime lastTime;
 
     PlayerController pc;
-
-    OptionsMenu optionsMenu;
 
     // Start is called before the first frame update
     void Start()
@@ -35,11 +36,9 @@ public class Polygons : MonoBehaviour
             startMenu.SetActive(false);
         }
 
-        optionsMenu = GameObject.Find("MenuHolder").GetComponent<OptionsMenu>();
-
         // Create origin tile
         curTile = new Tile(n, k);
-        curTile.setStart(new Vector3d(0, 0, 0), optionsMenu.getDist());
+        curTile.setStart(new Vector3d(0, 0, 0), dist);
         pc = GameObject.Find("Player").GetComponent<PlayerController>();
         lastTime = System.DateTime.Now;
         visible2 = new List<Tile>();
@@ -94,7 +93,7 @@ public class Polygons : MonoBehaviour
         }
 
         // Update tiles to be created/rendered based on current tile
-        curTile.setStart(tilePos, optionsMenu.getDist());
+        curTile.setStart(tilePos, dist);
 
         // Hide old tiles
         foreach (Tile t in visible2)
@@ -112,7 +111,7 @@ public class Polygons : MonoBehaviour
             }
             
             // Set polygon position in world
-            setPolygonVerts(t, tile_dict[t]);
+            setPolygonVerts(t, tile_dict[t], projection);
             tile_dict[t].SetActive(true);
         }
     }
@@ -148,10 +147,21 @@ public class Polygons : MonoBehaviour
     }
 
     // Set a polygon's vertex positions to a tile's Poincare-projected Vertex positions
-    void setPolygonVerts(Tile t, GameObject pg) {
+    // method = 0: poincare
+    // method = 1: beltrami
+    void setPolygonVerts(Tile t, GameObject pg, int method) {
+        Debug.Assert(method == 0 || method == 1, "setPolygonVerts: invalid method");
+
         Vector3[] vertices = new Vector3[n];
-        for (int i = 0; i < n; i++)
-            vertices[i] = (Vector3) Hyper.getPoincare(t.vertices[n - i - 1].getPos());
+        if (method == 0) {
+            for (int i = 0; i < n; i++)
+                vertices[i] = (Vector3) Hyper.getPoincare(t.vertices[n - i - 1].getPos());
+        }
+        else if (method == 1) {
+            for (int i = 0; i < n; i++)
+                vertices[i] = (Vector3) Hyper.getBeltrami(t.vertices[n - i - 1].getPos());
+        }
+
         pg.GetComponent<MeshFilter>().mesh.vertices = vertices;
         
         // Without this line, the polygons will visibly disappear when looking at certain angles
@@ -161,5 +171,13 @@ public class Polygons : MonoBehaviour
     // Set a polygon's color to a tile's color
     void setPolygonColor(Tile t, GameObject pg) {
         pg.GetComponent<MeshRenderer>().material.SetColor("_Color", t.color);
+    }
+
+    public void setDist(float input) {
+        dist = input;
+    }
+
+    public void setProjection(int input) {
+        projection = input;
     }
 }

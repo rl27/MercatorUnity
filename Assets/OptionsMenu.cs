@@ -10,11 +10,18 @@ public class OptionsMenu : MonoBehaviour
     private float temp = 50f;
     private GameObject optionsMenu;
     private bool active = false;
+    private int projection = 0;
+
+    Polygons polygons;
     
     void Start()
     {
         optionsMenu = GameObject.Find("OptionsMenu");
         optionsMenu.SetActive(false);
+
+        polygons = GameObject.Find("TileSpawner").GetComponent<Polygons>();
+        polygons.setDist(dist);
+        polygons.setProjection(projection);
     }
 
     void Update()
@@ -37,6 +44,7 @@ public class OptionsMenu : MonoBehaviour
     public void setDist()
     {
         dist = temp;
+        polygons.setDist(dist);
     }
 
     public void inputDist(string input)
@@ -46,8 +54,9 @@ public class OptionsMenu : MonoBehaviour
             temp = temp2;
     }
 
-    public float getDist()
+    public void inputProjection(int input)
     {
-        return dist;
+        projection = input;
+        polygons.setProjection(projection);
     }
 }
