@@ -1,47 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text;
+using System.Linq;
 
 public class WebClient : MonoBehaviour
 {   
     SpriteCreater sc;
 
-    // Start is called before the first frame update
     void Start()
     {
         sc = GameObject.Find("SpriteCreater").GetComponent<SpriteCreater>();
-
-        string body = "{'world': [], 'coords': [[0.0, 0.0], [0.899454, 0.899454], [-0.899454, 0.899454], [-0.899454, -0.899454], [0.899454, -0.899454]]}";
-        StartCoroutine(SendRequest("http://127.0.0.1:5555/get_image", body));
     }
 
-    // Update is called once per frame
-    void Update()
+    public IEnumerator SendRequest(string uri, Dictionary<string, List<List<float>>> data, List<Tile> megatile)
     {
-    }
-
-    IEnumerator SendRequest(string uri, string body)
-    {
-        Dictionary<string, List<List<float>>> mydict = new Dictionary<string, List<List<float>>>();
-        
-        List<List<float>> world = new List<List<float>>();
-
-        List<List<float>> coords = new List<List<float>>();
-        coords.Add(new List<float>() {0.0f, 0.0f});
-        coords.Add(new List<float>() {0.899454f, 0.899454f});
-        coords.Add(new List<float>() {-0.899454f, 0.899454f});
-        coords.Add(new List<float>() {-0.899454f, -0.899454f});
-        coords.Add(new List<float>() {0.899454f, -0.899454f});
-
-        mydict.Add("world", world);
-        mydict.Add("coords", coords);
-
         WWWForm form = new WWWForm();
-        form.AddField("data", JsonConvert.SerializeObject(mydict));
+        form.AddField("data", JsonConvert.SerializeObject(data));
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, form))
         {
@@ -51,25 +29,29 @@ public class WebClient : MonoBehaviour
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
-            Dictionary<string, string> myDict2 = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text).ToObject<Dictionary<string, string>>();
+            Dictionary<string, string> response = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text).ToObject<Dictionary<string, string>>();
 
-            string result = myDict2["result"];
+            // response["images"] format: "im1_bytes im2_bytes im3_bytes"
+            string[] images = response["images"].Split(' ');
 
-            string[] images = result.Split(' ');
+            List<List<float>> latent_vectors = string_to_vectors(response["vectors"]);
 
-            Texture2D myTexture = new Texture2D(2, 2, TextureFormat.RGBA32, false); // the arguments after 2,2 are likely unnecessary
-            myTexture.LoadImage(System.Convert.FromBase64String(images[3]));
-            myTexture.Apply();
+            Debug.Assert(images.Length == latent_vectors.Count, "SendRequest: Number of latent vectors should match number of new images");
 
+            for (int i = 0; i < images.Length; i++) {
+                Texture2D myTexture = new Texture2D(2, 2, TextureFormat.RGBA32, false); // the arguments after 2,2 are likely unnecessary
+                myTexture.LoadImage(System.Convert.FromBase64String(images[i]));
+                myTexture.Apply();
+                GameObject go = sc.createSprite(myTexture);
+                GameObject prev = megatile[i].image;
+                Destroy(prev);
+                megatile[i].image = go;
+                megatile[i].generated = true;
+                megatile[i].latent_vector = latent_vectors[i];
+            }
             
             // Single texture returned from flask (PIL image converted to bytes)
             // Texture2D myTexture = ((DownloadHandlerTexture) webRequest.downloadHandler).texture;
-            
-            GameObject go = sc.createSprite(myTexture);
-
-            // Blank textures
-            // sc.createSprite(Texture2D.whiteTexture);
-            // sc.createSprite(new Texture2D(2, 2));
             
             string[] pages = uri.Split('/');
             int page = pages.Length - 1;
@@ -88,5 +70,23 @@ public class WebClient : MonoBehaviour
                     break;
             }
         }
+    }
+
+    // Convert string of latent vectors to list of List<float>
+    List<List<float>> string_to_vectors(string s)
+    {
+        // s example: "[[1.6, 2, 3, 4], [5, 6], [7, 8]]"
+        s = s.Substring(1, s.Length - 2); // "[1.6, 2, 3, 4], [5, 6], [7, 8]"
+        s = s.Replace("],", "").Replace("]", ""); // "[1.6, 2, 3, 4 [5, 6 [7, 8"
+    
+        string[] s_split = s.Split('[');
+        
+        List<List<float>> latent_vectors = new List<List<float>>();
+        for (int i = 1; i < s_split.Length; i++) { // First substring is empty
+            string sub = s_split[i];
+            latent_vectors.Add(sub.Split(',').Select(float.Parse).ToList());
+        }
+        
+        return latent_vectors;
     }
 }

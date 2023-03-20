@@ -15,6 +15,7 @@ public class Tile
     public double angle;
     public int queueNum;
     public bool covered;
+    public bool generated;
 
     public List<Vertex> vertices; // CCW order
     public List<Edge> edges; // CCW order
@@ -23,6 +24,8 @@ public class Tile
     public int k; // Number of tiles per vertex
     double fv; // Precompute firstVertex()
     double fvY;
+
+    public List<float> latent_vector;
 
     // Only for origin tile
     public Tile(int n, int k)
@@ -77,6 +80,7 @@ public class Tile
         angle = 0;
         queueNum = -1;
         covered = false;
+        generated = false;
         image = null;
     }
 
@@ -163,6 +167,7 @@ public class Tile
         angle = 0;
         queueNum = -1;
         covered = false;
+        generated = false;
         image = null;
     }
 

@@ -24,6 +24,8 @@ public class Polygons : MonoBehaviour
 
     SpriteCreater sc;
 
+    WebClient wc;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -50,6 +52,7 @@ public class Polygons : MonoBehaviour
         tilePos = Vector3d.up;
 
         sc = GameObject.Find("SpriteCreater").GetComponent<SpriteCreater>();
+        wc = GameObject.Find("WebClient").GetComponent<WebClient>();
     }
 
     // Update is called once per frame
@@ -128,13 +131,14 @@ public class Polygons : MonoBehaviour
                 // Set image position and rotation
                 t.image.transform.position = center + new Vector3(0, 0.1f, 0);
                 Vector3 target = Vector3.zero - center;
-                t.image.transform.eulerAngles = new Vector3(0, 90f + Mathf.Rad2Deg * Mathf.Atan2(-target.z, target.x), 0);
+                t.image.transform.eulerAngles = new Vector3(0, -90f + Mathf.Rad2Deg * Mathf.Atan2(-target.z, target.x), 0);
 
                 // Scale image size
-                float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos()));
                 Texture2D tex = t.image.GetComponent<SpriteRenderer>().sprite.texture;
-                t.image.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 10.0f / scale);
-                // t.image.GetComponent<SpriteRenderer>().sprite.texture.Resize(1000, 1000);
+                float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos())) / tex.width;
+
+                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 300f;
+                // t.image.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 2.0f / scale);
             }
         }
 
@@ -142,8 +146,28 @@ public class Polygons : MonoBehaviour
         if (Tile.megatiles.Count != 0) {
             List<Tile> megatile = Tile.megatiles.Dequeue();
             
-            foreach (Tile t in megatile)
+            // "{'world': [], 'coords': [[0.0, 0.0], [0.899454, 0.899454], [-0.899454, 0.899454], [-0.899454, -0.899454], [0.899454, -0.899454]]}";
+
+            Dictionary<string, List<List<float>>> data = new Dictionary<string, List<List<float>>>();
+            List<List<float>> coords = new List<List<float>>();
+            List<List<float>> world = new List<List<float>>();
+            List<List<float>> latent_vectors = new List<List<float>>();
+
+            foreach (Tile t in megatile) {
                 t.image = sc.createSprite(Texture2D.whiteTexture);
+                coords.Add(new List<float>() {(float) t.center.x, (float) t.center.z});
+            }
+            foreach (Tile t in Tile.visible) {
+                if (t.generated) {
+                    world.Add(new List<float>() {(float) t.center.x, (float) t.center.z});
+                    latent_vectors.Add(t.latent_vector);
+                }
+            }
+            data.Add("coords", coords);
+            data.Add("world", world);
+            data.Add("vectors", latent_vectors);
+
+            StartCoroutine(wc.SendRequest("http://127.0.0.1:5555/get_image", data, megatile));
         }
     }
 
