@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class Tile
 {
-    public static List<Tile> visible;
+    public static List<Tile> visible; // Track visible tiles
     public static List<Tile> next;
-    public static List<Tile> all;
-    public static Queue<Tile> parents;
+    public static List<Tile> all; // Track all tiles
+    public static Queue<List<Tile>> megatiles; // Groups of tiles to be generated together
 
     public Vector3d center;
     public Color color;
-    // public int texture;
+    public GameObject image;
     public double angle;
-    // public int queueNum;
-    public Tile parent;
+    public int queueNum;
+    public bool covered;
 
     public List<Vertex> vertices; // CCW order
     public List<Edge> edges; // CCW order
@@ -35,7 +35,7 @@ public class Tile
         visible = new List<Tile>();
         next = new List<Tile>();
         all = new List<Tile>();
-        parents = new Queue<Tile>();
+        megatiles = new Queue<List<Tile>>();
 
         // Manually add origin tile; the rest are added by expand()
         all.Add(this);
@@ -74,9 +74,10 @@ public class Tile
 
         populateEdges();
 
-        // texture = -1;
         angle = 0;
-        // queueNum = -1;
+        queueNum = -1;
+        covered = false;
+        image = null;
     }
 
     public Tile(Tile ref_t, Edge e, int n, int k)
@@ -159,9 +160,10 @@ public class Tile
 
         populateEdges();
 
-        // texture = -1;
         angle = 0;
-        // queueNum = -1;
+        queueNum = -1;
+        covered = false;
+        image = null;
     }
 
     // Once all vertices are set, fill edges vector with edges
@@ -344,18 +346,21 @@ public class Tile
                 t.expand();
         }
         */
-        
 
-        /*
         // This is for marking tiles to receive generated outputs; comment out to disable
-        if (!parent) {
-            parents.push(this);
-            parent = this;
+        if (!covered) {
+            List<Tile> megatile = new List<Tile>();
+            megatile.Add(this);
+            
+            covered = true;
             foreach (Tile t in getNeighbors()) {
-                if (!t->parent)
-                    t->parent = this;
+                if (!t.covered) {
+                    t.covered = true;
+                    megatile.Add(t);
+                }
             }
-        }*/
+            megatiles.Enqueue(megatile);
+        }
     }
 
     // Check if tile is in vector of all currently updated/visible tiles

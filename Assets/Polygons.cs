@@ -22,6 +22,8 @@ public class Polygons : MonoBehaviour
 
     PlayerController pc;
 
+    SpriteCreater sc;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,6 +48,8 @@ public class Polygons : MonoBehaviour
         lastTime = System.DateTime.Now;
         visible2 = new List<Tile>();
         tilePos = Vector3d.up;
+
+        sc = GameObject.Find("SpriteCreater").GetComponent<SpriteCreater>();
     }
 
     // Update is called once per frame
@@ -116,6 +120,30 @@ public class Polygons : MonoBehaviour
             // Set polygon position in world
             setPolygonVerts(t, tile_dict[t]);
             tile_dict[t].SetActive(true);
+
+            // Render image if it exists
+            if (t.image != null) {
+                Vector3 center = (Vector3) project(t.center);
+                
+                // Set image position and rotation
+                t.image.transform.position = center + new Vector3(0, 0.1f, 0);
+                Vector3 target = Vector3.zero - center;
+                t.image.transform.eulerAngles = new Vector3(0, 90f + Mathf.Rad2Deg * Mathf.Atan2(-target.z, target.x), 0);
+
+                // Scale image size
+                float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos()));
+                Texture2D tex = t.image.GetComponent<SpriteRenderer>().sprite.texture;
+                t.image.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 10.0f / scale);
+                // t.image.GetComponent<SpriteRenderer>().sprite.texture.Resize(1000, 1000);
+            }
+        }
+
+        // Generate images for megatiles
+        if (Tile.megatiles.Count != 0) {
+            List<Tile> megatile = Tile.megatiles.Dequeue();
+            
+            foreach (Tile t in megatile)
+                t.image = sc.createSprite(Texture2D.whiteTexture);
         }
     }
 
@@ -180,5 +208,12 @@ public class Polygons : MonoBehaviour
 
     public void setProjection(int input) {
         projection = input;
+    }
+
+    Vector3d project(Vector3d v) {
+        if (projection == 0) return Hyper.getPoincare(v);
+        else if (projection == 1) return Hyper.getBeltrami(v);
+        Debug.Assert(false, "project: no matching projection");
+        return Vector3d.up;
     }
 }
