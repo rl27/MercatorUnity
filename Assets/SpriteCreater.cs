@@ -17,7 +17,9 @@ public class SpriteCreater : MonoBehaviour
 
         go.transform.position = new Vector3(0.0f, 0.5f, 1.5f);
 
-        sr.sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 300.0f);
+        sr.sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100.0f);
+
+        sr.sortingOrder = 1; // Default order is 0; want sprites to not render behind polygon meshes.
 
         return go;
     }

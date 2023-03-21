@@ -105,13 +105,16 @@ public class Polygons : MonoBehaviour
         // Update tiles to be created/rendered based on current tile
         curTile.setStart(tilePos, dist);
 
-        // Hide old tiles
-        foreach (Tile t in visible2)
+        // Hide old tiles and images
+        foreach (Tile t in visible2) {
             tile_dict[t].SetActive(false);
+            if (t.generated)
+                t.image.SetActive(false);
+        }
         
         visible2 = new List<Tile>(Tile.visible);
 
-        // Render all visible tiles
+        // Render all visible tiles and images
         foreach (Tile t in Tile.visible) {
             // Create polygon and dict entry if not present
             if (!tile_dict.ContainsKey(t)) {
@@ -126,6 +129,8 @@ public class Polygons : MonoBehaviour
 
             // Render image if it exists
             if (t.image != null) {
+                t.image.SetActive(true);
+
                 Vector3 center = (Vector3) project(t.center);
                 
                 // Set image position and rotation
@@ -137,7 +142,7 @@ public class Polygons : MonoBehaviour
                 Texture2D tex = t.image.GetComponent<SpriteRenderer>().sprite.texture;
                 float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos())) / tex.width;
 
-                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 300f;
+                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 60f;
                 // t.image.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 2.0f / scale);
             }
         }

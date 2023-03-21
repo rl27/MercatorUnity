@@ -8,9 +8,13 @@ public class CameraController : MonoBehaviour
     public double sensitivity = 0.01;
     public bool disableMovement = false;
 
+    private float DEFAULT_HEIGHT = 0.3f;
+    private float MIN_HEIGHT = 0.1f;
+
     // Start is called before the first frame update
     void Start()
     {
+        transform.position = new Vector3(transform.position.x, DEFAULT_HEIGHT, transform.position.z);
     }
 
     // Update is called once per frame
@@ -30,7 +34,7 @@ public class CameraController : MonoBehaviour
         // Camera.main.fieldOfView -= Input.mouseScrollDelta.y;
         
         // Height change via scroll wheel
-        float newY = Mathf.Max(0.35f, transform.position.y - 0.05f * Input.mouseScrollDelta.y);
+        float newY = Mathf.Max(MIN_HEIGHT, transform.position.y - 0.05f * Input.mouseScrollDelta.y);
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
     }
 }
