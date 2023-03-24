@@ -8,7 +8,10 @@ using Newtonsoft.Json.Linq;
 using System.Linq;
 
 public class WebClient : MonoBehaviour
-{   
+{
+    // private string SERVER_URL = "https://inbound-bee-381420.ue.r.appspot.com/get_image";
+    private string SERVER_URL = "http://127.0.0.1:5555/get_image";
+
     SpriteCreater sc;
 
     void Start()
@@ -16,20 +19,22 @@ public class WebClient : MonoBehaviour
         sc = GameObject.Find("SpriteCreater").GetComponent<SpriteCreater>();
     }
 
-    public IEnumerator SendRequest(string uri, Dictionary<string, List<List<float>>> data, List<Tile> megatile)
+    public IEnumerator SendRequest(Dictionary<string, List<List<float>>> data, List<Tile> megatile)
     {
-        WWWForm form = new WWWForm();
-        form.AddField("data", JsonConvert.SerializeObject(data));
+        string uri = SERVER_URL;
 
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, form))
-        {
-            // Set downloadHandler to handle textures (for single textures)
-            // webRequest.downloadHandler = new DownloadHandlerTexture();
-            
+        using (UnityWebRequest webRequest = new UnityWebRequest(uri, "POST"))
+        {   
             // Request and wait for the desired page.
+            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(JsonConvert.SerializeObject(data));
+            webRequest.uploadHandler = (UploadHandler) new UploadHandlerRaw(jsonToSend);
+            webRequest.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();
+            webRequest.SetRequestHeader("Content-Type", "application/json");
             yield return webRequest.SendWebRequest();
 
             Dictionary<string, string> response = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text).ToObject<Dictionary<string, string>>();
+            // Debug.Log(response["images"]);
+            // Debug.Log(response["vectors"]);
 
             // response["images"] format: "im1_bytes im2_bytes im3_bytes"
             string[] images = response["images"].Split(' ');
@@ -50,8 +55,6 @@ public class WebClient : MonoBehaviour
                 megatile[i].latent_vector = latent_vectors[i];
             }
             
-            // Single texture returned from flask (PIL image converted to bytes)
-            // Texture2D myTexture = ((DownloadHandlerTexture) webRequest.downloadHandler).texture;
             
             string[] pages = uri.Split('/');
             int page = pages.Length - 1;

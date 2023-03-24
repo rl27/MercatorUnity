@@ -172,7 +172,7 @@ public class Polygons : MonoBehaviour
             data.Add("world", world);
             data.Add("vectors", latent_vectors);
 
-            StartCoroutine(wc.SendRequest("http://127.0.0.1:5555/get_image", data, megatile));
+            StartCoroutine(wc.SendRequest(data, megatile));
         }
     }
 
