@@ -16,6 +16,8 @@ public class Polygons : MonoBehaviour
     // 1 = Klein-Beltrami
     private int projection = 0;
 
+    private string sentence = "";
+
     List<Tile> visible2;
 
     System.DateTime lastTime;
@@ -29,17 +31,23 @@ public class Polygons : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Get input n and k, then deactivate menu
+        // Get inputs [n, k, sentence], then deactivate menu
         GameObject startMenu = GameObject.Find("StartMenu");
-        // Default to (4,5) if starting in game instead of at start menu
+        // Default to (4,5) if starting in game instead of at start menu (testing purposes only)
         if (startMenu == null) {
             n = 4;
             k = 5;
+            
+            // sentence = "A street scene with a double-decker bus on the side of the road.";
+            sentence = "A crowd watching baseball players at a game.";
+            // sentence = "A minimalist room features white appliances and beige walls.";
+            // string sentence = "A city street line with brick buildings and trees.";
         }
         else {
             List<int> nk = startMenu.GetComponent<StartMenu>().getNK();
             n = nk[0];
             k = nk[1];
+            sentence = startMenu.GetComponent<StartMenu>().getSentence();
             startMenu.SetActive(false);
         }
 
@@ -153,7 +161,7 @@ public class Polygons : MonoBehaviour
             
             // "{'world': [], 'coords': [[0.0, 0.0], [0.899454, 0.899454], [-0.899454, 0.899454], [-0.899454, -0.899454], [0.899454, -0.899454]]}";
 
-            Dictionary<string, List<List<float>>> data = new Dictionary<string, List<List<float>>>();
+            Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
             List<List<float>> coords = new List<List<float>>();
             List<List<float>> world = new List<List<float>>();
             List<List<float>> latent_vectors = new List<List<float>>();
@@ -171,6 +179,11 @@ public class Polygons : MonoBehaviour
             data.Add("coords", coords);
             data.Add("world", world);
             data.Add("vectors", latent_vectors);
+            data.Add("sentence", sentence);
+
+            if (sentence != "")
+                sentence = "";
+
 
             StartCoroutine(wc.SendRequest(data, megatile));
         }
@@ -237,6 +250,10 @@ public class Polygons : MonoBehaviour
 
     public void setProjection(int input) {
         projection = input;
+    }
+
+    public void setSentence(string input) {
+        sentence = input;
     }
 
     Vector3d project(Vector3d v) {

@@ -8,6 +8,7 @@ public class StartMenu : MonoBehaviour
 {
     private int n = 4;
     private int k = 5;
+    private string sentence = "";
 
     void Awake()
     {
@@ -51,5 +52,15 @@ public class StartMenu : MonoBehaviour
     public List<int> getNK()
     {
         return new List<int>() {n, k};
+    }
+
+    public void inputSentence(string input)
+    {
+        sentence = input;
+    }
+
+    public string getSentence()
+    {
+        return sentence;
     }
 }

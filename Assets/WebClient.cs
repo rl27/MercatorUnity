@@ -9,8 +9,8 @@ using System.Linq;
 
 public class WebClient : MonoBehaviour
 {
-    // private string SERVER_URL = "https://inbound-bee-381420.ue.r.appspot.com/get_image";
-    private string SERVER_URL = "http://127.0.0.1:5555/get_image";
+    private string SERVER_URL = "https://inbound-bee-381420.ue.r.appspot.com/get_image";
+    // private string SERVER_URL = "http://127.0.0.1:5555/get_image";
 
     SpriteCreater sc;
 
@@ -19,7 +19,7 @@ public class WebClient : MonoBehaviour
         sc = GameObject.Find("SpriteCreater").GetComponent<SpriteCreater>();
     }
 
-    public IEnumerator SendRequest(Dictionary<string, List<List<float>>> data, List<Tile> megatile)
+    public IEnumerator SendRequest(Dictionary<string, dynamic> data, List<Tile> megatile)
     {
         string uri = SERVER_URL;
 
@@ -32,46 +32,31 @@ public class WebClient : MonoBehaviour
             webRequest.SetRequestHeader("Content-Type", "application/json");
             yield return webRequest.SendWebRequest();
 
-            Dictionary<string, string> response = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text).ToObject<Dictionary<string, string>>();
-            // Debug.Log(response["images"]);
-            // Debug.Log(response["vectors"]);
+            if (checkStatus(webRequest, uri.Split('/'))) {
 
-            // response["images"] format: "im1_bytes im2_bytes im3_bytes"
-            string[] images = response["images"].Split(' ');
+                Dictionary<string, string> response = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text).ToObject<Dictionary<string, string>>();
+                // Debug.Log(response["images"]);
+                // Debug.Log(response["vectors"]);
 
-            List<List<float>> latent_vectors = string_to_vectors(response["vectors"]);
+                // response["images"] format: "im1_bytes im2_bytes im3_bytes"
+                string[] images = response["images"].Split(' ');
 
-            Debug.Assert(images.Length == latent_vectors.Count, "SendRequest: Number of latent vectors should match number of new images");
+                List<List<float>> latent_vectors = string_to_vectors(response["vectors"]);
 
-            for (int i = 0; i < images.Length; i++) {
-                Texture2D myTexture = new Texture2D(2, 2, TextureFormat.RGBA32, false); // the arguments after 2,2 are likely unnecessary
-                myTexture.LoadImage(System.Convert.FromBase64String(images[i]));
-                myTexture.Apply();
-                GameObject go = sc.createSprite(myTexture);
-                GameObject prev = megatile[i].image;
-                Destroy(prev);
-                megatile[i].image = go;
-                megatile[i].generated = true;
-                megatile[i].latent_vector = latent_vectors[i];
-            }
-            
-            
-            string[] pages = uri.Split('/');
-            int page = pages.Length - 1;
+                Debug.Assert(images.Length == latent_vectors.Count, "SendRequest: Number of latent vectors should match number of new images");
 
-            switch (webRequest.result)
-            {
-                case UnityWebRequest.Result.ConnectionError:
-                case UnityWebRequest.Result.DataProcessingError:
-                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
-                    break;
-                case UnityWebRequest.Result.ProtocolError:
-                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
-                    break;
-                case UnityWebRequest.Result.Success:
-                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-                    break;
-            }
+                for (int i = 0; i < images.Length; i++) {
+                    Texture2D myTexture = new Texture2D(2, 2, TextureFormat.RGBA32, false); // the arguments after 2,2 are likely unnecessary
+                    myTexture.LoadImage(System.Convert.FromBase64String(images[i]));
+                    myTexture.Apply();
+                    GameObject go = sc.createSprite(myTexture);
+                    GameObject prev = megatile[i].image;
+                    Destroy(prev);
+                    megatile[i].image = go;
+                    megatile[i].generated = true;
+                    megatile[i].latent_vector = latent_vectors[i];
+                }
+            }            
         }
     }
 
@@ -91,5 +76,27 @@ public class WebClient : MonoBehaviour
         }
         
         return latent_vectors;
+    }
+
+    // Returns true on success, false on fail.
+    bool checkStatus(UnityWebRequest webRequest, string[] pages)
+    {
+        int page = pages.Length - 1;
+        switch (webRequest.result)
+        {
+            case UnityWebRequest.Result.ConnectionError:
+                Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                return false;
+            case UnityWebRequest.Result.DataProcessingError:
+                Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                return false;
+            case UnityWebRequest.Result.ProtocolError:
+                Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                return false;
+            case UnityWebRequest.Result.Success:
+                Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                return true;
+        }
+        return false;
     }
 }
