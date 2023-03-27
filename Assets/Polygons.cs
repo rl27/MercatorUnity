@@ -41,7 +41,7 @@ public class Polygons : MonoBehaviour
             // sentence = "A street scene with a double-decker bus on the side of the road.";
             sentence = "A crowd watching baseball players at a game.";
             // sentence = "A minimalist room features white appliances and beige walls.";
-            // string sentence = "A city street line with brick buildings and trees.";
+            // sentence = "A city street line with brick buildings and trees.";
         }
         else {
             List<int> nk = startMenu.GetComponent<StartMenu>().getNK();
@@ -142,7 +142,7 @@ public class Polygons : MonoBehaviour
                 Vector3 center = (Vector3) project(t.center);
                 
                 // Set image position and rotation
-                t.image.transform.position = center + new Vector3(0, 0.1f, 0);
+                t.image.transform.position = center + new Vector3(0, 0.08f, 0);
                 Vector3 target = Vector3.zero - center;
                 t.image.transform.eulerAngles = new Vector3(0, -90f + Mathf.Rad2Deg * Mathf.Atan2(-target.z, target.x), 0);
 
@@ -150,7 +150,7 @@ public class Polygons : MonoBehaviour
                 Texture2D tex = t.image.GetComponent<SpriteRenderer>().sprite.texture;
                 float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos())) / tex.width;
 
-                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 60f;
+                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 70f;
                 // t.image.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 2.0f / scale);
             }
         }

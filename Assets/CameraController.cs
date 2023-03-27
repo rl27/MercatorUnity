@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
     public double sensitivity = 0.01;
     public bool disableMovement = false;
 
-    private float DEFAULT_HEIGHT = 0.3f;
+    private float DEFAULT_HEIGHT = 0.25f;
     private float MIN_HEIGHT = 0.1f;
 
     // Start is called before the first frame update
