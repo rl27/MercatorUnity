@@ -353,13 +353,14 @@ public class Tile
         */
 
         // This is for marking tiles to receive generated outputs; comment out to disable
+        double megatileRadius = 2 * System.Math.Acosh(fvY) + 1e-6;
         if (!covered) {
             List<Tile> megatile = new List<Tile>();
             megatile.Add(this);
             
             covered = true;
-            foreach (Tile t in getNeighbors()) {
-                if (!t.covered) {
+            foreach (Tile t in visible) {
+                if (!t.covered && Hyper.dist(center, t.center) <= megatileRadius) {
                     t.covered = true;
                     megatile.Add(t);
                 }

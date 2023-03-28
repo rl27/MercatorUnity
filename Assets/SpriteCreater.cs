@@ -15,7 +15,7 @@ public class SpriteCreater : MonoBehaviour
         SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
         sr.color = new Color(0.9f, 0.9f, 0.9f, 1.0f);
 
-        go.transform.position = new Vector3(0.0f, 0.5f, 1.5f);
+        // go.transform.position = new Vector3(0.0f, 0.5f, 1.5f);
 
         sr.sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100.0f);
 

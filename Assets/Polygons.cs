@@ -17,15 +17,15 @@ public class Polygons : MonoBehaviour
     private int projection = 0;
 
     private string sentence = "";
+    private float sigma = 0.02f;
+    private float lengthscale = 2.0f;
 
     List<Tile> visible2;
 
     System.DateTime lastTime;
 
     PlayerController pc;
-
     SpriteCreater sc;
-
     WebClient wc;
 
     // Start is called before the first frame update
@@ -37,6 +37,8 @@ public class Polygons : MonoBehaviour
         if (startMenu == null) {
             n = 4;
             k = 5;
+            sigma = 0.02f;
+            lengthscale = 2.0f;
             
             // sentence = "A street scene with a double-decker bus on the side of the road.";
             sentence = "A crowd watching baseball players at a game.";
@@ -47,7 +49,12 @@ public class Polygons : MonoBehaviour
             List<int> nk = startMenu.GetComponent<StartMenu>().getNK();
             n = nk[0];
             k = nk[1];
+            List<float> sl = startMenu.GetComponent<StartMenu>().getSL();
+            sigma = sl[0];
+            lengthscale = sl[1];
             sentence = startMenu.GetComponent<StartMenu>().getSentence();
+            if (sentence == "")
+                sentence = "A crowd watching baseball players at a game.";
             startMenu.SetActive(false);
         }
 
@@ -140,18 +147,16 @@ public class Polygons : MonoBehaviour
                 t.image.SetActive(true);
 
                 Vector3 center = (Vector3) project(t.center);
-                
-                // Set image position and rotation
-                t.image.transform.position = center + new Vector3(0, 0.08f, 0);
-                Vector3 target = Vector3.zero - center;
-                t.image.transform.eulerAngles = new Vector3(0, -90f + Mathf.Rad2Deg * Mathf.Atan2(-target.z, target.x), 0);
 
                 // Scale image size
                 Texture2D tex = t.image.GetComponent<SpriteRenderer>().sprite.texture;
                 float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos())) / tex.width;
-
                 t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 70f;
-                // t.image.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 2.0f / scale);
+                
+                // Set image position and rotation
+                t.image.transform.position = center + new Vector3(0, scale * tex.width * 0.35f, 0);
+                Vector3 target = Vector3.zero - center;
+                t.image.transform.eulerAngles = new Vector3(0, -90f + Mathf.Rad2Deg * Mathf.Atan2(-target.z, target.x), 0);
             }
         }
 
@@ -180,6 +185,8 @@ public class Polygons : MonoBehaviour
             data.Add("world", world);
             data.Add("vectors", latent_vectors);
             data.Add("sentence", sentence);
+            data.Add("sigma", sigma);
+            data.Add("lengthscale", lengthscale);
 
             if (sentence != "")
                 sentence = "";
