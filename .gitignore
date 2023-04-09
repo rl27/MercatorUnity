@@ -12,6 +12,7 @@
 /connectwebgl*
 /webgl_sharing
 /output_txts
+output*.txt
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
