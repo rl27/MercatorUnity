@@ -102,7 +102,6 @@ public class WebClient : MonoBehaviour
                 string[] images = response["images"].Split(' ');
 
                 List<List<float>> latent_vectors = string_to_vectors(response["vectors"]);
-                List<List<float>> v2 = string_to_vectors(response["v2"]);
 
 
                 if (target.Count == 0) {
@@ -111,8 +110,8 @@ public class WebClient : MonoBehaviour
                 }
                 float min = System.Single.PositiveInfinity;
                 int minIndex = -1;
-                for (int i = 0; i < v2.Count; i++) {
-                    float dist = CosineDist(target, v2[i]);
+                for (int i = 0; i < latent_vectors.Count; i++) {
+                    float dist = CosineDist(target, latent_vectors[i]);
                     if (dist < min) {
                         minIndex = i;
                         min = dist;
@@ -127,7 +126,7 @@ public class WebClient : MonoBehaviour
                 Debug.Log(total);
 
                 if (total % 10 == 0 || total == 1)
-                    writeOutput(v2[minIndex]);
+                    writeOutput(latent_vectors[minIndex]);
                 if (total == NUM_ITER)
                     writeOutput(dists2);
 
