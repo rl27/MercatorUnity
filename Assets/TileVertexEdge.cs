@@ -325,11 +325,10 @@ public class Tile
         for (int i = 1; i < n; i++)
             vertices[i].setPos(Hyper.rotate(vertices[i-1].getPos(), 2 * Mathd.PI_PRECISE / n));
 
-        Vector3d xz = Hyper.getXZ(pos);
         for (int i = 0; i < n; i++)
-            vertices[i].setPos(Hyper.hypNormalize(Hyper.translateXZ(vertices[i].getPos(), xz.x, xz.z)));
+            vertices[i].setPos(Hyper.hypNormalize(Hyper.translateXZ2(vertices[i].getPos(), pos.x, pos.z)));
 
-        center = Hyper.hypNormalize(Hyper.translateXZ(Vector3d.up, xz.x, xz.z));
+        center = Hyper.hypNormalize(Hyper.translateXZ2(Vector3d.up, pos.x, pos.z));
 
         visible.Clear();
         visible.Add(this);

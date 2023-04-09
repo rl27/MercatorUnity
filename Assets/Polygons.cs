@@ -93,8 +93,7 @@ public class Polygons : MonoBehaviour
 
                 // Compare current tile rotation to default rotation by moving tile to (0, 1, 0)
                 // and inspecting vertices[0]
-                Vector3d xz = Hyper.getXZ(tilePos);
-                Vector3d reversed = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
+                Vector3d reversed = Hyper.reverseXZ2(curTile.vertices[0].getPos(), tilePos.x, tilePos.z);
                 curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
 
                 lastTime = curTime;
@@ -105,16 +104,14 @@ public class Polygons : MonoBehaviour
         if (Vector3d.Magnitude(pc.pos - Vector3d.up) != 0)
         {
             // Transform center
-            Vector3d xz = Hyper.getXZ(pc.pos);
-            tilePos = Hyper.hypNormalize(Hyper.reverseXZ(tilePos, xz.x, xz.z));
-            pc.pos = Vector3d.up;
+            tilePos = Hyper.hypNormalize(Hyper.reverseXZ2(tilePos, pc.pos.x, pc.pos.z));
 
-            // Get new vertex position and set angle
-            Vector3d v0_newpos = Hyper.reverseXZ(curTile.vertices[0].getPos(), xz.x, xz.z);
-            xz = Hyper.getXZ(tilePos);
-            Vector3d reversed = Hyper.reverseXZ(v0_newpos, xz.x, xz.z);
+            // Get new vertex position for one of the vertices and set new angle
+            Vector3d v0_newpos = Hyper.reverseXZ2(curTile.vertices[0].getPos(), pc.pos.x, pc.pos.z);
+            Vector3d reversed = Hyper.reverseXZ2(v0_newpos, tilePos.x, tilePos.z);
             curTile.angle = Mathd.Atan2(reversed.z, reversed.x);
 
+            pc.pos = Vector3d.up;
         }
 
         // Update tiles to be created/rendered based on current tile
@@ -197,7 +194,6 @@ public class Polygons : MonoBehaviour
 
             if (sentence != "")
                 sentence = "";
-
 
             StartCoroutine(wc.SendRequest(data, megatile));
         }
