@@ -109,31 +109,29 @@ public class Tile
         center = Hyper.extend(ref_t.center, Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos()));
 
         // List<Vertex> verts = e.verts(center);
-        // Swapped verts[0] and verts[1] when changing from verts to verts2
+        // Swapped verts[0] and verts[1] when changing from verts to verts2 due to using ref_t
         List<Vertex> verts = e.verts2(ref_t);
 
         Vertex back_vert = verts[1];
         Vertex front_vert = verts[0];
 
-        vertices.Add(back_vert);
+        // vertices.Add(back_vert);
         vertices.Add(front_vert);
 
         Edge back_edge = back_vert.next(e);
         while (back_vert != front_vert && !back_edge.hasDangling()) {
-            back_edge.addTile(this);
-            back_vert = (back_vert == back_edge.vertex1) ? back_edge.vertex2 : back_edge.vertex1; //back_vert = back_edge.verts(center).at(0);
             vertices.Insert(0, back_vert);
+            back_vert = (back_vert == back_edge.vertex1) ? back_edge.vertex2 : back_edge.vertex1; //back_vert = back_edge.verts(center).at(0);
+            back_edge.addTile(this);
             back_edge = back_vert.next(back_edge);
         }
 
-        // Made a loop; all vertices accounted for
-        if (back_vert == front_vert)
-            vertices.RemoveAt(0);
-        // Otherwise, need to complete the vertices; start from front_vert
-        else {
+        // Didn't make a loop; need to complete vertices, starting from front_vert
+        if (back_vert != front_vert) {
             // Use process similar to setVertexLocs3
 
             Vertex vertex = front_vert;
+            vertices.Insert(0, back_vert);
             Edge edge = vertex.prev(e);
             edge.addTile(this);
 
@@ -252,7 +250,6 @@ public class Tile
     }
 
     // This version uses rotation around the tile center
-    // Seems slightly more accurate than setVertexLocs2 when using (n,k) = (4,5) and expand radius = 0.89
     public void setVertexLocs3(Tile ref_t, Edge e)
     {
         Vector3d midpt = Hyper.midpoint(e.vertex1.getPos(), e.vertex2.getPos());
@@ -308,7 +305,7 @@ public class Tile
                 other_tile = (this == e.tiles[0]) ? e.tiles[1] : e.tiles[0];
                 // other_tile->setVertexLocs(this, e);
             }
-            if (other_tile is not null && !other_tile.isVisible()) {
+            if (/* other_tile is not null && */ !other_tile.isVisible()) {
                 next.Add(other_tile);
                 visible.Add(other_tile);
                 other_tile.setVertexLocs3(this, e);
