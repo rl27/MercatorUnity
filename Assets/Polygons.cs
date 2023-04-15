@@ -148,14 +148,7 @@ public class Polygons : MonoBehaviour
                 // Scale image size
                 Texture2D tex = t.image.GetComponent<SpriteRenderer>().sprite.texture;
                 float scale = Vector3.Distance(center, (Vector3) project(t.vertices[0].getPos())) / tex.width;
-                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 70f * t.closest;
-
-                if (t.closest != 1) {
-                    pc.pos = t.center;
-                    curTile = t;
-                    t.closest = 1;
-                    t.closest2 = true;
-                }
+                t.image.GetComponent<SpriteRenderer>().transform.localScale = Vector3.one * scale * 70f;
                 
                 // Set image position and rotation
                 t.image.transform.position = center + new Vector3(0, scale * tex.width * 0.35f, 0);

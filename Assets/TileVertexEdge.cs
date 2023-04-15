@@ -26,8 +26,6 @@ public class Tile
     double fvY;
 
     public List<float> latent_vector;
-    public float closest;
-    public bool closest2;
 
     // Only for origin tile
     public Tile(int n, int k)
@@ -84,14 +82,10 @@ public class Tile
         covered = false;
         generated = false;
         image = null;
-        closest = 1;
-        closest2 = false;
     }
 
     public Tile(Tile ref_t, Edge e, int n, int k)
     {
-        closest = 1;
-        closest2 = false;
         Debug.Assert(2*n + 2*k < n*k, "Tile(): invalid n and k");
         
         this.n = n;
@@ -356,8 +350,7 @@ public class Tile
 
         // This is for marking tiles to receive generated outputs; comment out to disable
         double megatileRadius = 2 * System.Math.Acosh(fvY) + 1e-6;
-        if (!covered || Input.GetKeyDown("space") || closest2) {
-            closest2 = false;
+        if (!covered || Input.GetKeyDown("space")) {
             List<Tile> megatile = new List<Tile>();
 
             foreach (Tile t in visible) {

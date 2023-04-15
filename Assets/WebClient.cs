@@ -10,53 +10,6 @@ using System.IO;
 
 public class WebClient : MonoBehaviour
 {
-    Polygons polygons;
-    private List<float> dists = new List<float>() { 10, 10, 10 };
-    private List<float> dists2 = new List<float>();
-    private int count = 2;
-    private int total = 0;
-    private int NUM_ITER = 500;
-
-    // Assumes l1 and l2 are already normalized.
-    public float CosineDist(List<float> l1, List<float> l2)
-    {
-        float dot = 0;
-        for (int i = 0; i < l1.Count; i++) {
-            dot += l1[i] * l2[i];
-        }
-        return 1 - dot;
-    }
-    public float EuclideanDist(List<float> l1, List<float> l2)
-    {
-        float sum = 0;
-        for (int i = 0; i < l1.Count; i++) {
-            sum += (l1[i] - l2[i]) * (l1[i] - l2[i]);
-        }
-        return Mathf.Sqrt(sum);
-    }
-
-    public string printList(List<float> v) {
-        string asdf = "" + v[0];
-        for (int i = 1; i < v.Count; i++)
-            asdf = asdf + ", " + v[i];
-        return asdf;
-    }
-
-    public void writeOutput(List<float> v) {
-        using (StreamWriter writer = new StreamWriter("output.txt", true))
-        {
-            writer.WriteLine(printList(v));
-        }
-    }
-    public void writeOutput(string asdf) {
-        using (StreamWriter writer = new StreamWriter("output.txt", true))
-        {
-            writer.WriteLine(asdf);
-        }
-    }
-
-    private List<float> target;
-
     // private string SERVER_URL = "https://inbound-bee-381420.ue.r.appspot.com/get_image";
     private string SERVER_URL = "http://127.0.0.1:5555/get_image";
 
@@ -64,21 +17,11 @@ public class WebClient : MonoBehaviour
 
     void Start()
     {   
-        using(FileStream fs = File.Open("output.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite))
-        {
-            lock(fs)
-            {
-                fs.SetLength(0);
-            }
-        }
-        polygons = GameObject.Find("TileSpawner").GetComponent<Polygons>();
         sc = GameObject.Find("SpriteCreater").GetComponent<SpriteCreater>();
-        target = new List<float>();
     }
 
     public IEnumerator SendRequest(Dictionary<string, dynamic> data, List<Tile> megatile)
     {
-        if (total < NUM_ITER) {
         string uri = SERVER_URL;
 
         using (UnityWebRequest webRequest = new UnityWebRequest(uri, "POST"))
@@ -103,47 +46,9 @@ public class WebClient : MonoBehaviour
 
                 List<List<float>> latent_vectors = string_to_vectors(response["vectors"]);
 
-
-                if (target.Count == 0) {
-                    writeOutput(response["target"]);
-                    target = response["target"].Split(',').Select(float.Parse).ToList();
-                }
-                float min = System.Single.PositiveInfinity;
-                int minIndex = -1;
-                for (int i = 0; i < latent_vectors.Count; i++) {
-                    float dist = CosineDist(target, latent_vectors[i]);
-                    if (dist < min) {
-                        minIndex = i;
-                        min = dist;
-                    }
-                }
-                megatile[minIndex].closest = 2.22f;
-                dists.Add(min);
-                dists2.Add(min);
-                count += 1;
-
-                total += 1;
-                Debug.Log(total);
-
-                if (total % 10 == 0 || total == 1)
-                    writeOutput(latent_vectors[minIndex]);
-                if (total == NUM_ITER)
-                    writeOutput(dists2);
-
-                if (dists[count]     > dists[count - 1] &&
-                    dists[count - 1] > dists[count - 2] &&
-                    dists[count - 2] > dists[count - 3]) {
-                    // polygons.setSigma(polygons.getSigma() * 0.7071f);
-                    polygons.setSigma(polygons.getSigma() * 0.7071f);
-                    dists = new List<float>() { 10, 10, 10 };
-                    count = 2;
-                    Debug.Log("NEW SIGMA: " + polygons.getSigma());
-                }
-
-                // Debug.Assert(images.Length == latent_vectors.Count, "SendRequest: Number of latent vectors should match number of new images");
+                Debug.Assert(images.Length == latent_vectors.Count, "SendRequest: Number of latent vectors should match number of new images");
 
                 for (int i = 0; i < latent_vectors.Count; i++) {
-                    /*
                     Texture2D myTexture = new Texture2D(2, 2, TextureFormat.RGBA32, false); // the arguments after 2,2 are likely unnecessary
                     myTexture.LoadImage(System.Convert.FromBase64String(images[i]));
                     myTexture.Apply();
@@ -151,12 +56,10 @@ public class WebClient : MonoBehaviour
                     GameObject prev = megatile[i].image;
                     Destroy(prev);
                     megatile[i].image = go;
-                    */
                     megatile[i].generated = true;
                     megatile[i].latent_vector = latent_vectors[i];
                 }
             }
-        }
         }
     }
 
@@ -194,7 +97,7 @@ public class WebClient : MonoBehaviour
                 Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
                 return false;
             case UnityWebRequest.Result.Success:
-                // Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
                 return true;
         }
         return false;
