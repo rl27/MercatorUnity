@@ -11,6 +11,8 @@ public class OptionsMenu : MonoBehaviour
     private GameObject optionsMenu;
     private bool active = false;
     private int projection = 0;
+    private float sigma;
+    private float lengthscale;
 
     Polygons polygons;
     PlayerController playerController;
@@ -61,5 +63,27 @@ public class OptionsMenu : MonoBehaviour
     {
         projection = input;
         polygons.setProjection(projection);
+    }
+
+    public void inputSigma(string input)
+    {
+        float.TryParse(input, out sigma);
+    }
+
+    public void inputLengthscale(string input)
+    {
+        float.TryParse(input, out lengthscale);
+    }
+
+    public void setSigma()
+    {
+        if (sigma > 0)
+            polygons.setSigma(sigma);
+    }
+
+    public void setLengthscale()
+    {
+        if (lengthscale > 0)
+            polygons.setLengthscale(lengthscale);
     }
 }

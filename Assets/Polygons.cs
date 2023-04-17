@@ -259,12 +259,12 @@ public class Polygons : MonoBehaviour
         sentence = input;
     }
 
-    public void setSigma(float input) {
-        sigma = input;
+    public void setSigma(float s) {
+        sigma = s;
     }
 
-    public float getSigma() {
-        return sigma;
+    public void setLengthscale(float l) {
+        lengthscale = l;
     }
 
     Vector3d project(Vector3d v) {

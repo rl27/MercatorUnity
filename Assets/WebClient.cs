@@ -36,7 +36,6 @@ public class WebClient : MonoBehaviour
             if (checkStatus(webRequest, uri.Split('/'))) {
 
                 Dictionary<string, string> response = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text).ToObject<Dictionary<string, string>>();
-                webRequest.Dispose(); // Attempt at fixing: "A Native Collection has not been disposed, resulting in a memory leak. Enable Full StackTraces to get more details."
 
                 // Debug.Log(response["images"]);
                 // Debug.Log(response["vectors"]);
@@ -56,10 +55,12 @@ public class WebClient : MonoBehaviour
                     GameObject prev = megatile[i].image;
                     Destroy(prev);
                     megatile[i].image = go;
-                    megatile[i].generated = true;
                     megatile[i].latent_vector = latent_vectors[i];
                 }
             }
+            webRequest.Dispose(); // Attempt at fixing: "A Native Collection has not been disposed, resulting in a memory leak. Enable Full StackTraces to get more details."
+            foreach (Tile t in megatile)
+                t.generated = true;
         }
     }
 
