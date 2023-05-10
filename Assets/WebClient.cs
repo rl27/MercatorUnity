@@ -10,8 +10,8 @@ using System.IO;
 
 public class WebClient : MonoBehaviour
 {
-    // private string SERVER_URL = "https://inbound-bee-381420.ue.r.appspot.com/get_image";
-    private string SERVER_URL = "http://127.0.0.1:5555/get_image";
+    private string SERVER_URL = "https://graphic-ripsaw-384301.uc.r.appspot.com/get_image";
+    // private string SERVER_URL = "http://127.0.0.1:5555/get_image";
 
     SpriteCreater sc;
 

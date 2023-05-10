@@ -19,6 +19,8 @@ public class Polygons : MonoBehaviour
     private string sentence = "";
     private float sigma = 0.02f;
     private float lengthscale = 2.0f;
+    
+    private bool markTiles = true;
 
     List<Tile> visible2;
 
@@ -31,7 +33,7 @@ public class Polygons : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Get inputs [n, k, sentence], then deactivate menu
+        // Get inputs [n, k, sigma, lengthscale, sentence], then deactivate menu
         GameObject startMenu = GameObject.Find("StartMenu");
         // Default to (4,5) if starting in game instead of at start menu (testing purposes only)
         if (startMenu == null) {
@@ -39,6 +41,7 @@ public class Polygons : MonoBehaviour
             k = 5;
             sigma = 0.02f;
             lengthscale = 2.0f;
+            markTiles = true;
             
             // sentence = "A street scene with a double-decker bus on the side of the road.";
             sentence = "A crowd watching baseball players at a game.";
@@ -52,6 +55,9 @@ public class Polygons : MonoBehaviour
             List<float> sl = startMenu.GetComponent<StartMenu>().getSL();
             sigma = sl[0];
             lengthscale = sl[1];
+
+            markTiles = startMenu.GetComponent<StartMenu>().getImgGen();
+
             sentence = startMenu.GetComponent<StartMenu>().getSentence();
             if (sentence == "")
                 sentence = "A crowd watching baseball players at a game.";
@@ -60,7 +66,7 @@ public class Polygons : MonoBehaviour
 
         // Create origin tile
         curTile = new Tile(n, k);
-        curTile.setStart(new Vector3d(0, 0, 0), dist);
+        curTile.setStart(new Vector3d(0, 0, 0), dist, markTiles);
         pc = GameObject.Find("Player").GetComponent<PlayerController>();
         lastTime = System.DateTime.Now;
         visible2 = new List<Tile>();
@@ -115,7 +121,7 @@ public class Polygons : MonoBehaviour
         }
 
         // Update tiles to be created/rendered based on current tile
-        curTile.setStart(tilePos, dist);
+        curTile.setStart(tilePos, dist, markTiles);
 
         // Hide old tiles and images
         foreach (Tile t in visible2) {

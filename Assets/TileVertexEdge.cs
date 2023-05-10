@@ -309,7 +309,7 @@ public class Tile
 
     // Set starting tile position based on relative position to its center
     // Calls expand() repeatedly
-    public void setStart(Vector3d pos, float radius)
+    public void setStart(Vector3d pos, float radius, bool markTiles)
     {
         vertices[0].setPos(Hyper.rotate(new Vector3d(fv, fvY, 0), angle));
 
@@ -349,18 +349,20 @@ public class Tile
         */
 
         // This is for marking tiles to receive generated outputs; comment out to disable
-        double megatileRadius = 2 * System.Math.Acosh(fvY) + 1e-6;
-        if (!covered || Input.GetKeyDown("space")) {
-            List<Tile> megatile = new List<Tile>();
+        if (markTiles) {
+            double megatileRadius = 2 * System.Math.Acosh(fvY) + 1e-6;
+            if (!covered || Input.GetKeyDown("space")) {
+                List<Tile> megatile = new List<Tile>();
 
-            foreach (Tile t in visible) {
-                if (!t.covered && Hyper.dist(center, t.center) <= megatileRadius) {
-                    t.covered = true;
-                    megatile.Add(t);
+                foreach (Tile t in visible) {
+                    if (!t.covered && Hyper.dist(center, t.center) <= megatileRadius) {
+                        t.covered = true;
+                        megatile.Add(t);
+                    }
                 }
+                if (megatile.Count != 0)
+                    megatiles.Enqueue(megatile);
             }
-            if (megatile.Count != 0)
-                megatiles.Enqueue(megatile);
         }
     }
 

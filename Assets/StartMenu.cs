@@ -18,6 +18,8 @@ public class StartMenu : MonoBehaviour
 
     private string sentence = "";
 
+    private bool imgGen = true;
+
     void Awake()
     {
         // Allow the game scene to get n and k before deactivating menu scene
@@ -98,5 +100,13 @@ public class StartMenu : MonoBehaviour
     public string getSentence()
     {
         return sentence;
+    }
+
+    public void setImgGen(bool b) {
+        imgGen = !b;
+    }
+
+    public bool getImgGen() {
+        return imgGen;
     }
 }
